@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cay5rd4q33bgj"]
+
+[ext_resource type="PackedScene" uid="uid://w744qvncxds1" path="res://pet.tscn" id="1_ulcgi"]
+[ext_resource type="Script" uid="uid://dkdpfy710g7lm" path="res://border.gd" id="2_nxogm"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("1_ulcgi")]
+position = Vector2(500, 300)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+script = ExtResource("2_nxogm")
