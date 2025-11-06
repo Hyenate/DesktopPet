@@ -50,7 +50,7 @@ public partial class Pet : CharacterBody2D
 			weightTotal += weight;
 		}
 		anims = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
-		anims.Play("IdleS");
+		anims.Play("HopS");
 		timer = GetNode<Timer>("Timer");
 		rand = new Random();
 	}
