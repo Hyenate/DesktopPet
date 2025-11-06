@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://w744qvncxds1"]
 
 [ext_resource type="Script" uid="uid://btlb2yew06su3" path="res://Pet.cs" id="1_xibd0"]
-[ext_resource type="Script" uid="uid://b74xvdmolgr2b" path="res://PokeSprite.cs" id="2_xibd0"]
+[ext_resource type="Script" uid="uid://b74xvdmolgr2b" path="res://Dynamic Sprite Loading/PokeSprite.cs" id="2_xibd0"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_qae7j"]
 animations = []
@@ -23,7 +23,11 @@ shape = SubResource("CircleShape2D_uvuc8")
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 8.0
+
+[node name="SpawnFloatTime" type="Timer" parent="."]
+one_shot = true
 autostart = true
 
 [connection signal="animation_looped" from="AnimatedSprite2D" to="." method="OnAnimationLoopEnd"]
 [connection signal="timeout" from="Timer" to="." method="RandomizeState"]
+[connection signal="timeout" from="SpawnFloatTime" to="." method="FinishSpawnAnim"]

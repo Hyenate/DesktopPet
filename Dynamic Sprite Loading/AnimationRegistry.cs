@@ -1,7 +1,4 @@
 using Godot;
-using System;
-using Godot.Collections;
-using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Linq;
 using CSharpDictionary = System.Collections.Generic.Dictionary<string, AnimationRegistry.AnimationInfo>;
@@ -44,15 +41,15 @@ public partial class AnimationRegistry : Node
 		}
 		
 		// Populate the Registry
-		AddAnimation("attack-anim", "Attack", 1, pullFrameSize("Attack"));
-		AddAnimation("charge-anim", "Charge", 1, pullFrameSize("Charge"));
-		AddAnimation("hop-anim",    "Hop",    1, pullFrameSize("Hop"));
-		AddAnimation("hurt-anim",   "Hurt",   1, pullFrameSize("Hurt"));
-		AddAnimation("idle-anim",   "Idle",   1, pullFrameSize("Idle"));
-		AddAnimation("rotate-anim", "Rotate", 1, pullFrameSize("Rotate"));
-		AddAnimation("sleep-anim",  "Sleep",  0, pullFrameSize("Sleep"));
-		AddAnimation("swing-anim",  "Swing",  1, pullFrameSize("Swing"));
-		AddAnimation("walk-anim",   "Walk",   1, pullFrameSize("Walk"));
+		AddAnimation("Attack-Anim", "Attack", 1, pullFrameSize("Attack"));
+		AddAnimation("Charge-Anim", "Charge", 1, pullFrameSize("Charge"));
+		AddAnimation("Hop-Anim",    "Hop",    1, pullFrameSize("Hop"));
+		AddAnimation("Hurt-Anim",   "Hurt",   1, pullFrameSize("Hurt"));
+		AddAnimation("Idle-Anim",   "Idle",   1, pullFrameSize("Idle"));
+		AddAnimation("Rotate-Anim", "Rotate", 1, pullFrameSize("Rotate"));
+		AddAnimation("Sleep-Anim",  "Sleep",  0, pullFrameSize("Sleep"));
+		AddAnimation("Swing-Anim",  "Swing",  1, pullFrameSize("Swing"));
+		AddAnimation("Walk-Anim",   "Walk",   1, pullFrameSize("Walk"));
 	}
 	
 	

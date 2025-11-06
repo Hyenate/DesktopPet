@@ -39,13 +39,14 @@ public partial class Pet : CharacterBody2D
 	private int weightTotal = 0;
 	private Direction dir = Direction.S;
 	private const float Speed = 300.0f;
+	private bool finishedSpawning = false;
 	private AnimatedSprite2D anims;
 	private Timer timer;
 	private Random rand;
 
 	public override void _Ready()
 	{
-		foreach(var weight in Weights.Values.ToList())
+		foreach (var weight in Weights.Values.ToList())
 		{
 			weightTotal += weight;
 		}
@@ -54,11 +55,18 @@ public partial class Pet : CharacterBody2D
 		timer = GetNode<Timer>("Timer");
 		rand = new Random();
 	}
+	
+	private void FinishSpawnAnim()
+	{
+		finishedSpawning = true;
+		timer.Start();
+		GetNode<Timer>("SpawnFloatTime").QueueFree();
+	}
 
 	public override void _PhysicsProcess(double delta)
 	{
 		Vector2 velocity = Velocity;
-		if (!IsOnFloor())
+		if (!IsOnFloor() && finishedSpawning)
 		{
 			velocity += GetGravity() * (float)delta;
 		}

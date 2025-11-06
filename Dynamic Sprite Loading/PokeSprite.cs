@@ -44,7 +44,7 @@ public partial class PokeSprite : AnimatedSprite2D
 		Texture2D texture = GD.Load<Texture2D>(spriteSheetPath);
 		if (texture == null)
 		{
-			GD.PrintErr($"[SpriteAnimator] Could not load sprite sheet: {spriteSheetPath}");
+			GD.PrintErr($"[PokeSprite.cs: BuildDirectionAnimationFromSpriteSheet] Could not load sprite sheet: {spriteSheetPath}");
 			return;
 		}
 
