@@ -46,7 +46,7 @@ public partial class AnimationRegistry : Node
 		AddAnimation("Hop-Anim",    "Hop",    1, pullFrameSize("Hop"));
 		AddAnimation("Hurt-Anim",   "Hurt",   1, pullFrameSize("Hurt"));
 		AddAnimation("Idle-Anim",   "Idle",   1, pullFrameSize("Idle"));
-		AddAnimation("Rotate-Anim", "Rotate", 1, pullFrameSize("Rotate"));
+		AddAnimation("Rotate-Anim", "Spin",   1, pullFrameSize("Rotate"));
 		AddAnimation("Sleep-Anim",  "Sleep",  0, pullFrameSize("Sleep"));
 		AddAnimation("Swing-Anim",  "Swing",  1, pullFrameSize("Swing"));
 		AddAnimation("Walk-Anim",   "Walk",   1, pullFrameSize("Walk"));
