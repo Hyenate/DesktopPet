@@ -52,10 +52,7 @@ public partial class WindowsPet : Pet
 		}
 
 		// Apply gravity regardless of throwable state
-		if (finishedSpawning)
-		{
-			Velocity = ApplyGravity(Velocity, delta);
-		}
+		Velocity = ApplyGravity(Velocity, delta);
 
 		// Only handle normal physics if ThrowableBehavior allows it
 		if (throwableBehavior.ShouldParentHandlePhysics())
@@ -82,7 +79,7 @@ public partial class WindowsPet : Pet
 		Vector2 velocity = Velocity;
 
 		// Only apply walking behavior if spawn finished and on floor
-		if (finishedSpawning && IsOnFloor())
+		if (IsOnFloor())
 		{
 			ApplyWalkingBehavior(ref velocity);
 		}
@@ -189,11 +186,8 @@ public partial class WindowsPet : Pet
 	private void OnDragStopped()
 	{
 		// Resume normal behavior when dragging stops
-		if (finishedSpawning)
-		{
-			timer.Start();
-			RandomizeState();
-		}
+		timer.Start();
+		RandomizeState();
 		//GD.Print("Pet: Drag stopped");
 	}
 

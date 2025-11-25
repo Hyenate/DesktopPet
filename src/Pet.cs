@@ -38,7 +38,6 @@ public partial class Pet : CharacterBody2D
 	public int weightTotal = 0;
 	public Direction dir = Direction.S;
 	public const float Speed = 300.0f;
-	public bool finishedSpawning = false;
 	public AnimatedSprite2D anims;
 	public Timer timer;
 	public Random rand;
@@ -52,20 +51,15 @@ public partial class Pet : CharacterBody2D
 		anims = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
 		anims.Play("HopS");
 		timer = GetNode<Timer>("Timer");
-		rand = new Random();
-	}
-	
-	private void FinishSpawnAnim()
-	{
-		finishedSpawning = true;
 		timer.Start();
-		GetNode<Timer>("SpawnFloatTime").QueueFree();
+		rand = new Random();
+		Velocity = new Vector2(0,-400);		// Initial Upwards Velocity
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
 		Vector2 velocity = Velocity;
-		if (!IsOnFloor() && finishedSpawning)
+		if (!IsOnFloor())
 		{
 			velocity += GetGravity() * (float)delta;
 		}
@@ -128,7 +122,7 @@ public partial class Pet : CharacterBody2D
 		}
 		else if (state == State.Spin)
 		{
-			anims.Play("Spin");
+			anims.Play("Spin" + dir.ToString());
 		}
 		else if (state == State.Hop)
 		{

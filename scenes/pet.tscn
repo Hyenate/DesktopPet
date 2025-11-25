@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://w744qvncxds1"]
+[gd_scene load_steps=4 format=3 uid="uid://dl6llrue821cj"]
 
-[ext_resource type="Script" uid="uid://b74xvdmolgr2b" path="res://Dynamic Sprite Loading/PokeSprite.cs" id="2_xibd0"]
+[ext_resource type="Script" uid="uid://b74xvdmolgr2b" path="res://src/Dynamic Sprite Loading/PokeSprite.cs" id="1_mdqe4"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_qae7j"]
 
@@ -12,7 +12,7 @@ scale = Vector2(5, 5)
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_qae7j")
-script = ExtResource("2_xibd0")
+script = ExtResource("1_mdqe4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_uvuc8")
@@ -20,10 +20,5 @@ shape = SubResource("CircleShape2D_uvuc8")
 [node name="Timer" type="Timer" parent="."]
 wait_time = 8.0
 
-[node name="SpawnFloatTime" type="Timer" parent="."]
-one_shot = true
-autostart = true
-
 [connection signal="animation_looped" from="AnimatedSprite2D" to="." method="OnAnimationLoopEnd"]
 [connection signal="timeout" from="Timer" to="." method="RandomizeState"]
-[connection signal="timeout" from="SpawnFloatTime" to="." method="FinishSpawnAnim"]

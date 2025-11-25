@@ -51,6 +51,12 @@ public partial class PokeSprite : AnimatedSprite2D
 		// Determine how many frames across and down
 		int columns = texture.GetWidth() / FrameSize.X;
 		int rows = texture.GetHeight() / FrameSize.Y;
+
+		// Drop final frame on "Rotate" for clean loop
+		if (animationName.Contains("Spin"))
+		{
+			columns--;
+		}
 		
 		//GD.Print("Loaded " + columns + " columns and " + rows + " rows from sprite sheet: " + spriteSheetPath);
 		
@@ -60,6 +66,16 @@ public partial class PokeSprite : AnimatedSprite2D
 			SpriteFrames.AddAnimation(finalAnimationName);
 			SpriteFrames.SetAnimationLoop(finalAnimationName, true);
 			//GD.Print("Final Animation Name: " + finalAnimationName);
+
+			if (animationName.Contains("Spin"))
+			{
+				SpriteFrames.SetAnimationSpeed(finalAnimationName, 8.0);
+			}
+			else if (animationName.Equals("Sleep"))
+			{
+				SpriteFrames.SetAnimationSpeed(finalAnimationName, 1.5);
+			}
+
 			for (int x = 0; x < columns; x++)
 			{
 				// Create sub-texture for each frame
