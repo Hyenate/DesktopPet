@@ -5,7 +5,7 @@ using System.Linq;
 
 public partial class Pet : CharacterBody2D
 {
-	private enum State
+	public enum State
 	{
 		Idle,
 		Walk,
@@ -14,7 +14,7 @@ public partial class Pet : CharacterBody2D
 		Hop,
 	}
 
-	private enum Direction
+	public enum Direction
 	{
 		S,
 		SE,
@@ -26,7 +26,7 @@ public partial class Pet : CharacterBody2D
 		SW
 	}
 
-	private Dictionary<State, int> Weights = new Dictionary<State, int>
+	public Dictionary<State, int> Weights = new Dictionary<State, int>
 	{
 		{State.Idle, 20},
 		{State.Walk, 40},
@@ -35,14 +35,13 @@ public partial class Pet : CharacterBody2D
 		{State.Hop, 15}
 	};
 
-	private int stateCount = Enum.GetNames(typeof(State)).Length;
-	private int weightTotal = 0;
-	private Direction dir = Direction.S;
-	private const float Speed = 300.0f;
-	private bool finishedSpawning = false;
-	private AnimatedSprite2D anims;
-	private Timer timer;
-	private Random rand;
+	public int weightTotal = 0;
+	public Direction dir = Direction.S;
+	public const float Speed = 300.0f;
+	public bool finishedSpawning = false;
+	public AnimatedSprite2D anims;
+	public Timer timer;
+	public Random rand;
 
 	public override void _Ready()
 	{
@@ -95,12 +94,12 @@ public partial class Pet : CharacterBody2D
 		{
 			velocity.X = 0;
 		}
-		
+
 		Velocity = velocity;
 		MoveAndSlide();
 	}
-
-	public void RandomizeState()
+	
+	public virtual void RandomizeState()
 	{
 		State state = RollForRandomState();
 		timer.WaitTime = rand.Next(7) + 3;
@@ -137,7 +136,7 @@ public partial class Pet : CharacterBody2D
 		}
 	}
 
-	private State RollForRandomState()
+	public State RollForRandomState()
 	{
 		int num = rand.Next(weightTotal);
 		foreach (var stateKey in Weights.Keys.ToList())
@@ -151,11 +150,10 @@ public partial class Pet : CharacterBody2D
 				num -= Weights[stateKey];
 			}
 		}
-		// If error, choose default
 		return State.Idle;
 	}
 
-	public void OnAnimationLoopEnd()
+	public virtual void OnAnimationLoopEnd()
 	{
 		//force Hop to end and reroll
 		if(anims.Animation.ToString().Contains("Hop"))

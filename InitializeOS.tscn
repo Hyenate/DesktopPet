@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://4xw7luxhhag0"]
+
+[ext_resource type="Script" uid="uid://ddlxg16tkpdfg" path="res://InitializeOS.gd" id="1_k2g44"]
+[ext_resource type="Script" uid="uid://dkdpfy710g7lm" path="res://border.gd" id="2_nxogm"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_k2g44")
+
+[node name="Border" type="StaticBody2D" parent="."]
+script = ExtResource("2_nxogm")

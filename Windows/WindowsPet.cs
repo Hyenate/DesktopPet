@@ -3,52 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class WindowsPet : CharacterBody2D
+public partial class WindowsPet : Pet
 {
-	private enum State
-	{
-		Idle,
-		Walk,
-		Sleep,
-		Spin,
-		Hop
-	}
-
-	private enum Direction
-	{
-		S,
-		SE,
-		E,
-		NE,
-		N,
-		NW,
-		W,
-		SW
-	}
-
-	private Dictionary<State, int> Weights = new Dictionary<State, int>
-	{
-		{State.Idle, 20},
-		{State.Walk, 40},
-		{State.Sleep, 20},
-		{State.Spin, 5 },
-		{State.Hop, 15}
-	};
-
-	private int weightTotal = 0;
-	private Direction dir = Direction.S;
-	private const float Speed = 300.0f;
-	private bool finishedSpawning = false;
-	private AnimatedSprite2D anims;
-	private Timer timer;
-	private Random rand;
-
 	private const float Gravity = 980f;
 	private const float TerminalVelocity = 2000f;
 	
 	public string currentState = "";
-
-	// Throwable behavior component
 	private ThrowableBehavior throwableBehavior;
 
 	private int physicsFrame = 0;    // Debug
@@ -79,14 +39,6 @@ public partial class WindowsPet : CharacterBody2D
 		}
 		
 		//GD.Print("Pet initialized - waiting for spawn to finish");
-	}
-	
-	private void FinishSpawnAnim()
-	{
-		finishedSpawning = true;
-		timer.Start();
-		GetNode<Timer>("SpawnFloatTime").QueueFree();
-		//GD.Print("SPAWN FINISHED - GRAVITY ENABLED");
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -172,7 +124,7 @@ public partial class WindowsPet : CharacterBody2D
 		}
 	}
 
-	public void RandomizeState()
+	public override void RandomizeState()
 	{
 		if (throwableBehavior.IsBeingThrown || throwableBehavior.IsBeingDragged) 
 			return;
@@ -214,24 +166,7 @@ public partial class WindowsPet : CharacterBody2D
 		//GD.Print($"Randomized state: {state}");
 	}
 
-	private State RollForRandomState()
-	{
-		int num = rand.Next(weightTotal);
-		foreach (var stateKey in Weights.Keys.ToList())
-		{
-			if (num < Weights[stateKey])
-			{
-				return stateKey;
-			}
-			else
-			{
-				num -= Weights[stateKey];
-			}
-		}
-		return State.Idle;
-	}
-
-	public void OnAnimationLoopEnd()
+	public override void OnAnimationLoopEnd()
 	{
 		if (throwableBehavior.IsBeingDragged || throwableBehavior.IsBeingThrown) 
 			return;

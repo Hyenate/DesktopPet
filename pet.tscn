@@ -1,18 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://w744qvncxds1"]
+[gd_scene load_steps=4 format=3 uid="uid://w744qvncxds1"]
 
-[ext_resource type="Script" uid="uid://btlb2yew06su3" path="res://Linux Pet (Default)/Pet.cs" id="1_xibd0"]
 [ext_resource type="Script" uid="uid://b74xvdmolgr2b" path="res://Dynamic Sprite Loading/PokeSprite.cs" id="2_xibd0"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_qae7j"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_uvuc8"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_xibd0"]
-size = Vector2(50, 50)
-
-[node name="CharacterBody2D" type="CharacterBody2D"]
+[node name="Pet" type="CharacterBody2D"]
 scale = Vector2(5, 5)
-script = ExtResource("1_xibd0")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
@@ -28,11 +23,6 @@ wait_time = 8.0
 [node name="SpawnFloatTime" type="Timer" parent="."]
 one_shot = true
 autostart = true
-
-[node name="Area2D" type="Area2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-shape = SubResource("RectangleShape2D_xibd0")
 
 [connection signal="animation_looped" from="AnimatedSprite2D" to="." method="OnAnimationLoopEnd"]
 [connection signal="timeout" from="Timer" to="." method="RandomizeState"]
