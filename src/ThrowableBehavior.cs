@@ -4,11 +4,6 @@ using System.Runtime.InteropServices;
 
 public partial class ThrowableBehavior : Node, IThrowable
 {
-	// Windows API for mouse input
-	[DllImport("user32.dll")]
-	private static extern short GetAsyncKeyState(int vKey);
-	private const int VK_LBUTTON = 0x01;
-
 	// Interface implementation
 	public bool IsBeingDragged { get; private set; }
 	public bool IsBeingThrown { get; private set; }
@@ -79,16 +74,19 @@ public partial class ThrowableBehavior : Node, IThrowable
 		return shouldParentHandlePhysics;
 	}
 
+	public virtual bool IsMousePressed() {
+		return Input.IsActionPressed("lClick");
+	}
+
 	private void HandleMouseInput()
 	{
-		short keyState = GetAsyncKeyState(VK_LBUTTON);
-		bool isMousePressed = (keyState & 0x8000) != 0;
+		bool mousePressed = IsMousePressed();
 		
 		Vector2 mousePos = GetGlobalMousePosition();
 		float distance = mousePos.DistanceTo(parentBody.GlobalPosition);
 		
 		// Check for mouse press
-		if (isMousePressed && !wasMousePressed)
+		if (mousePressed && !wasMousePressed)
 		{
 			if (distance <= DragRadius && !IsBeingDragged && !IsBeingThrown)
 			{
@@ -96,7 +94,7 @@ public partial class ThrowableBehavior : Node, IThrowable
 				StartDragging(dragOffset);
 			}
 		}
-		else if (!isMousePressed && wasMousePressed)
+		else if (!mousePressed && wasMousePressed)
 		{
 			if (IsBeingDragged)
 			{
@@ -113,7 +111,7 @@ public partial class ThrowableBehavior : Node, IThrowable
 				}
 			}
 		}
-		wasMousePressed = isMousePressed;
+		wasMousePressed = mousePressed;
 	}
 
 	private void HandleDragging()

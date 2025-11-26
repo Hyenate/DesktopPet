@@ -42,6 +42,9 @@ public partial class Pet : CharacterBody2D
 	public Timer timer;
 	public Random rand;
 
+	private const float Gravity = 980f;
+	private const float TerminalVelocity = 2000f;
+
 	public override void _Ready()
 	{
 		foreach (var weight in Weights.Values.ToList())
@@ -53,17 +56,55 @@ public partial class Pet : CharacterBody2D
 		timer = GetNode<Timer>("Timer");
 		timer.Start();
 		rand = new Random();
+		Position = GetViewportRect().Size / 2;
 		Velocity = new Vector2(0,-400);		// Initial Upwards Velocity
+
+		InitializeOSSpecificBehavior();
 	}
+
+	public virtual void InitializeOSSpecificBehavior() {}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		Vector2 velocity = Velocity;
-		if (!IsOnFloor())
-		{
-			velocity += GetGravity() * (float)delta;
-		}
+		// Apply gravity regardless of throwable state
+		Velocity = ApplyGravity(Velocity, delta);
+		RunOSSpecificBehavior(delta);	
+		MoveAndSlide();
+	}
 
+	public virtual void RunOSSpecificBehavior(double delta) {}
+
+		private Vector2 ApplyGravity(Vector2 velocity, double delta)
+	{
+		velocity.Y += Gravity * (float)delta;
+		
+		// Cap terminal velocity
+		if (velocity.Y > TerminalVelocity)
+			velocity.Y = TerminalVelocity;
+			
+		return velocity;
+	}
+
+	public void ApplyNormalPhysics(double delta)
+	{
+		Vector2 velocity = Velocity;
+
+		// Only apply walking behavior if spawn finished and on floor
+		if (IsOnFloor())
+		{
+			ApplyWalkingBehavior(ref velocity);
+		}
+		else
+		{
+			velocity.X = 0;
+		}
+		
+		Velocity = velocity;
+	}
+
+
+	private void ApplyWalkingBehavior(ref Vector2 velocity)
+	{
 		if (anims.Animation == "WalkE")
 		{
 			velocity.X = Mathf.MoveToward(Velocity.X, 60, Speed);
@@ -88,13 +129,18 @@ public partial class Pet : CharacterBody2D
 		{
 			velocity.X = 0;
 		}
-
-		Velocity = velocity;
-		MoveAndSlide();
 	}
+
+	public virtual bool KeepCurrentState()
+    {
+        return false;
+    }
 	
-	public virtual void RandomizeState()
+	public void RandomizeState()
 	{
+		if(KeepCurrentState())
+			return;
+
 		State state = RollForRandomState();
 		timer.WaitTime = rand.Next(7) + 3;
 
@@ -149,10 +195,40 @@ public partial class Pet : CharacterBody2D
 
 	public virtual void OnAnimationLoopEnd()
 	{
+		if(KeepCurrentState())
+			return;
+		
 		//force Hop to end and reroll
 		if(anims.Animation.ToString().Contains("Hop"))
 		{
 			RandomizeState();
 		}    
+	}
+
+	public void OnDragStarted()
+	{
+		// Stop any current animations and timer when dragging starts
+		timer.Stop();
+		anims.Stop();
+	}
+
+	public void OnDragStopped()
+	{
+		// Resume normal behavior when dragging stops
+		timer.Start();
+		RandomizeState();
+	}
+
+	public void OnThrown(Vector2 throwForce)
+	{
+		// Handle throw behavior - you might want to play a special animation
+		string animationString = "Charge";
+		if(Velocity.X > 0){
+			animationString += "W";
+		}
+		else{
+			animationString += "E";
+		}
+		anims.Play(animationString);
 	}
 }

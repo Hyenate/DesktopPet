@@ -3,7 +3,6 @@ extends StaticBody2D
 @export_range(0, 0, 1, "or_greater") var padding : int = 0
 
 func _ready():
-	get_window().mouse_passthrough = true
 	get_window().size_changed.connect(resize)
 	resize()
 
