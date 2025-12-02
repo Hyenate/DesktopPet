@@ -41,17 +41,25 @@ public partial class Pet : CharacterBody2D
 	public AnimatedSprite2D anims;
 	public Timer timer;
 	public Random rand;
+	private bool initialized;
 
 	private const float Gravity = 980f;
 	private const float TerminalVelocity = 2000f;
 
-	public override void _Ready()
-	{
-		foreach (var weight in Weights.Values.ToList())
+    public override void _Ready()
+    {
+        initialized = false;
+    }
+
+	public void InitializePet(AnimatedSprite2D petSprites)
+    {
+        foreach (var weight in Weights.Values.ToList())
 		{
 			weightTotal += weight;
 		}
-		anims = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		petSprites.AnimationLooped += OnAnimationLoopEnd;
+		AddChild(petSprites);
+		anims = petSprites;
 		anims.Play("HopS");
 		timer = GetNode<Timer>("Timer");
 		timer.Start();
@@ -60,16 +68,20 @@ public partial class Pet : CharacterBody2D
 		Velocity = new Vector2(0,-400);		// Initial Upwards Velocity
 
 		InitializeOSSpecificBehavior();
-	}
+		initialized = true;
+    }
 
 	public virtual void InitializeOSSpecificBehavior() {}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		// Apply gravity regardless of throwable state
-		Velocity = ApplyGravity(Velocity, delta);
-		RunOSSpecificBehavior(delta);	
-		MoveAndSlide();
+		if(initialized)
+        {
+          	// Apply gravity regardless of throwable state
+			Velocity = ApplyGravity(Velocity, delta);
+			RunOSSpecificBehavior(delta);	
+			MoveAndSlide();  
+        }
 	}
 
 	public virtual void RunOSSpecificBehavior(double delta) {}

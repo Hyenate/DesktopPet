@@ -6,17 +6,16 @@ using Godot.Collections;
 public partial class PokeSprite : AnimatedSprite2D
 {
 	AnimationRegistry registry = new AnimationRegistry();
-	[Export] public string SpriteFolder = "res://sprite/";
-	public Array<string> animationDirections = new Array<string> {"", "S","SE","E","NE","N","NW","W","SW"};   // Blank direction (for anims with no direction) plus 8 compass directions
+	public static readonly Array<string> animationDirections = new Array<string> {"", "S","SE","E","NE","N","NW","W","SW"};   // Blank direction (for anims with no direction) plus 8 compass directions
 
-	public override void _Ready()
+	public void LoadSpriteFiles(string spriteFolder)
 	{
-		registry.Init();
-		LoadAllAnimations();
+		registry.Init(spriteFolder);
+		LoadAllAnimations(spriteFolder);
 	}
 
 	/// Loads animations for each sprite sheet name.
-	private void LoadAllAnimations()
+	private void LoadAllAnimations(string spriteFolder)
 	{
 		 if (registry == null)
 		{
@@ -27,7 +26,7 @@ public partial class PokeSprite : AnimatedSprite2D
 		foreach (var entry in registry.Animations)
 		{
 			var info = entry.Value;
-			string sheetPath = SpriteFolder + info.SheetName + ".png";
+			string sheetPath = spriteFolder + info.SheetName + ".png";
 			BuildDirectionAnimationFromSpriteSheet(info.InternalName, sheetPath, info.FrameSize, info.HasDirections);
 		}
 
@@ -41,7 +40,11 @@ public partial class PokeSprite : AnimatedSprite2D
 	private void BuildDirectionAnimationFromSpriteSheet(string animationName, string spriteSheetPath, Vector2I FrameSize, int hasDirections)
 	{
 		//GD.Print("Animation Name: " + animationName);
-		Texture2D texture = GD.Load<Texture2D>(spriteSheetPath);
+		Image image = new Image();
+		image.Load(spriteSheetPath);
+
+		ImageTexture texture = new ImageTexture();
+		texture.SetImage(image);		
 		if (texture == null)
 		{
 			GD.PrintErr($"[PokeSprite.cs: BuildDirectionAnimationFromSpriteSheet] Could not load sprite sheet: {spriteSheetPath}");

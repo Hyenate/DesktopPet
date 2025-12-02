@@ -26,11 +26,12 @@ public partial class AnimationRegistry : Node
 
 	// Dictionary maps internal names to info
 	public CSharpDictionary Animations { get; private set; } = new();
-	string animDataPath = "res://sprite/AnimData.xml";
+	string animDataPath = "";
 	XDocument doc;
 
-	public void Init()
+	public void Init(string spriteFolder)
 	{
+		animDataPath = spriteFolder + "AnimData.xml";
 		var file = FileAccess.Open(animDataPath, FileAccess.ModeFlags.Read);
 		string xmlText = file.GetAsText();
 		doc = XDocument.Parse(xmlText);
@@ -62,7 +63,6 @@ public partial class AnimationRegistry : Node
 			GD.PrintErr($"Animation '{animName}' not found in {animDataPath}");
 			return new Vector2I(0, 0);
 		}
-		
 		return new Vector2I((int)animElem.Element("FrameWidth"), (int)animElem.Element("FrameHeight"));
 	}
 

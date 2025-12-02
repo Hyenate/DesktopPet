@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="DesktopPet"
-run/main_scene="uid://26dg0povxrm7"
+run/main_scene="uid://b4j66gsm5i0af"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 boot_splash/bg_color=Color(0, 0, 0, 0)
 config/icon="uid://c3r6sihl0pm2m"

@@ -9,9 +9,13 @@ func _ready():
 		"Windows":
 			pet_res = load("res://src/Windows/WindowsPet.tscn")
 		"Linux":
+			DisplayServer.window_set_mode(DisplayServer.WindowMode.WINDOW_MODE_MAXIMIZED)
+			DisplayServer.window_set_flag(DisplayServer.WindowFlags.WINDOW_FLAG_BORDERLESS, true)
 			pet_res = load("res://src/Linux/LinuxPet.tscn")
 		"macOS":
 			# macOS and Linux currently use same Godot native implementation
+			DisplayServer.window_set_mode(DisplayServer.WindowMode.WINDOW_MODE_MAXIMIZED)
+			DisplayServer.window_set_flag(DisplayServer.WindowFlags.WINDOW_FLAG_BORDERLESS, true)
 			pet_res = load("res://src/Linux/LinuxPet.tscn")
 		_:
 			push_error("Failed to Initialize OS: " + os_name)
