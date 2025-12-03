@@ -1,27 +1,15 @@
 extends Node2D
 
-func _ready():
+func load_OS_settings(useOverlay, pet):
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, true)
 	var os_name = OS.get_name()
 	print("Running on:", os_name)
-	var pet_res
-	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, true)
-
-	match os_name:
-		"Windows":
-			pet_res = load("res://src/Windows/WindowsPet.tscn")
-		"Linux":
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
-			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
-			pet_res = load("res://src/Linux/LinuxPet.tscn")
-		"macOS":
-			# macOS and Linux currently use same Godot native implementation
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
-			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
-			pet_res = load("res://src/Linux/LinuxPet.tscn")
-		_:
-			push_error("Failed to Initialize OS: " + os_name)
-			return
-
-	var pet = pet_res.instantiate()
-	pet.name = "Pet"
-	add_child(pet);
+	
+	if os_name == "Windows" && useOverlay:
+		var overlay = Node.new()
+		var overlay_script = load("res://src/Windows/TransparentOverlay.cs")
+		overlay.set_script(overlay_script)
+		pet.add_child(overlay)
+	else:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)

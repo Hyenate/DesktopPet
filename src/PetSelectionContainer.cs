@@ -11,7 +11,7 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	public override void _Ready()
 	{
-		menuHandler = GetNode<Menu>("../../../../Menu");
+		menuHandler = GetNode<Menu>("../../../../../Menu");
 		icon = GetNode<TextureRect>("Icon");
 		nameEdit = GetNode<LineEdit>("Name");
 		Name = "Pet";
@@ -32,7 +32,7 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	private void OnLoadButtonPressed()
 	{
-		GetNode<SceneManager>("../../../../../Node").LoadPet(Name);
+		menuHandler.LoadSelectedPet(Name);
 	}
 
 	private void OnTextSubmitted(string submittedName)

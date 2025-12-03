@@ -30,7 +30,7 @@ public partial class TransparentOverlay : Node
     public static extern IntPtr SetCursor(IntPtr hCursor);
 
 	[DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
+    //[return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
 	[StructLayout(LayoutKind.Sequential)]
@@ -57,9 +57,20 @@ public partial class TransparentOverlay : Node
 	private const int IDC_SIZENESW = 32643;
 	private const int IDC_SIZEWE = 32644;
 	private const int IDC_SIZENS = 32645;
+	private const int MouseSize = 20;		// Right/Bottom Window border are offset by 20 pixels. MouseSize?
+
+	private enum WindowSide
+    {
+        Left,
+		Top,
+		Right,
+		Bottom,
+		None
+    }
 
 	private IntPtr windowHandle;
-	public WindowsPet pet;
+	public Pet pet;
+	private WindowSide resizingWindowSide = WindowSide.None;
 	private int topBarwindowHeight = 25;
 	private bool isClickThrough = false;
 	private bool isWindows;
@@ -88,7 +99,7 @@ public partial class TransparentOverlay : Node
 			windowHandle = GetActiveWindow();
 			
 			// Find the pet
-			pet = GetParent<WindowsPet>();
+			pet = GetParent<Pet>();
 			
 			// Set up layered window with transparency
 			SetupLayeredWindow();
@@ -154,8 +165,6 @@ public partial class TransparentOverlay : Node
 		}
 	}
 
-	//	TODO:
-	//		Fix bug where resizing stops if dragging too fast.
 	private bool IsMouseNearBorder(Vector2 mousePos)	
 	{
         if (GetWindowRect(windowHandle, out RECT rect))
@@ -166,52 +175,30 @@ public partial class TransparentOverlay : Node
             // Upper/Lower Bounds
             if (mousePos.Y > -10 && mousePos.Y < windowHeight + 10)
             {
-                // Left Border
-                if (Math.Abs(mousePos.X) < 10)
+                if (Math.Abs(mousePos.X) < 10 || resizingWindowSide == WindowSide.Left)
                 {
-                    SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZEWE));
-                    if (IsMousePressed())
-                    {
-                        SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left + (int)mousePos.X, rect.Top,
-                            windowWidth - (int)mousePos.X, windowHeight, SWP_NOACTIVATE);
-                    }
+                    HandleWindowResize(WindowSide.Left, mousePos, rect);
                     return true;
                 }
-                // Right Border
-                else if (Math.Abs(windowWidth - mousePos.X - 20) < 10)
+                else if (Math.Abs(windowWidth - mousePos.X - MouseSize) < 10 || resizingWindowSide == WindowSide.Right)
                 {
-					SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZEWE));
-                    if (IsMousePressed())
-                    {
-                        SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
-                            (int)mousePos.X + 20, windowHeight, SWP_NOMOVE | SWP_NOACTIVATE);
-                    }
+                    HandleWindowResize(WindowSide.Right, mousePos, rect);
                     return true;
                 }
             }
 			// Left/Right Bounds
 			if(mousePos.X > -10 && mousePos.X < windowWidth + 10)
             {
-                // Top Border
-				if (mousePos.Y > -topBarwindowHeight - 20 && mousePos.Y < -topBarwindowHeight - 10)
+				if ((mousePos.Y > -topBarwindowHeight - 20 && mousePos.Y < -topBarwindowHeight - 10) || 
+					resizingWindowSide == WindowSide.Top)
                 {
-                    SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZENS));
-                    if (IsMousePressed())
-                    {
-                        SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left, rect.Top + (int)mousePos.Y + topBarwindowHeight + 15,
-                            windowWidth, windowHeight - (int)mousePos.Y - topBarwindowHeight - 15, SWP_NOACTIVATE);
-                    }
+                    HandleWindowResize(WindowSide.Top, mousePos, rect);
                     return true;
                 }
-				// Bottom Border
-				if (Math.Abs(windowHeight - mousePos.Y - topBarwindowHeight - 20) < 10)
+				if (Math.Abs(windowHeight - mousePos.Y - topBarwindowHeight - MouseSize) < 10 || 
+					resizingWindowSide == WindowSide.Bottom)
                 {
-                    SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZENS));
-                    if (IsMousePressed())
-                    {
-                        SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
-                            windowWidth, (int)mousePos.Y + topBarwindowHeight + 20 , SWP_NOMOVE | SWP_NOACTIVATE);
-                    }
+                    HandleWindowResize(WindowSide.Bottom, mousePos, rect);
                     return true;
                 }
             }
@@ -220,6 +207,53 @@ public partial class TransparentOverlay : Node
         SetCursor(LoadCursor(IntPtr.Zero, IDC_ARROW));
 		return false;
 	}
+
+	private void HandleWindowResize(WindowSide side, Vector2 mousePos, RECT rect)
+    {
+		if(side == WindowSide.Left || side == WindowSide.Right)
+        {
+            SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZEWE));
+        }
+		else if(side == WindowSide.Top || side == WindowSide.Bottom)
+        {
+            SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZENS));
+        }
+
+		if (IsMousePressed())
+		{
+			int windowWidth = rect.Right - rect.Left;
+            int windowHeight = rect.Bottom - rect.Top;
+
+			if(side == WindowSide.Left)
+            {
+				resizingWindowSide = WindowSide.Left;
+                SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left + (int)mousePos.X, rect.Top,
+					windowWidth - (int)mousePos.X, windowHeight, SWP_NOACTIVATE);
+            }
+			else if (side == WindowSide.Right)
+            {
+				resizingWindowSide = WindowSide.Right;
+                SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
+                    (int)mousePos.X + MouseSize, windowHeight, SWP_NOMOVE | SWP_NOACTIVATE);
+            }
+			else if(side == WindowSide.Top)
+            {
+				resizingWindowSide = WindowSide.Top;
+                SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left, rect.Top + (int)mousePos.Y + topBarwindowHeight + 15,
+                    windowWidth, windowHeight - (int)mousePos.Y - topBarwindowHeight - 15, SWP_NOACTIVATE);
+            }
+			else if(side == WindowSide.Bottom)
+            {
+				resizingWindowSide = WindowSide.Bottom;
+                SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
+                    windowWidth, (int)mousePos.Y + topBarwindowHeight + MouseSize , SWP_NOMOVE | SWP_NOACTIVATE);
+            }
+		}
+		else
+        {
+            resizingWindowSide = WindowSide.None;
+        }
+    }
 
 	private static bool IsMousePressed() {
 		return (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;

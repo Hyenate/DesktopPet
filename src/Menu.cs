@@ -12,7 +12,7 @@ public partial class Menu : Control
 	public override void _Ready()
 	{
 		GetWindow().FilesDropped += AddPets;
-		vBox = GetNode<VBoxContainer>("ScrollContainer/VBoxContainer");
+		vBox = GetNode<VBoxContainer>("ScrollContainer/VBoxContainer/Selection");
 		petSelection_res = ResourceLoader.Load<PackedScene>("res://scenes/petSelectionContainer.tscn");
 		config = new ConfigFile();
 		Error err = config.Load(configPath);
@@ -31,6 +31,12 @@ public partial class Menu : Control
 			petSelection.LoadPetDetails(name);
 		}
 	}
+
+	public void LoadSelectedPet(string name)
+    {
+		bool useOverlay = GetNode<CheckBox>("ScrollContainer/VBoxContainer/Windowed Mode/CheckBox").ButtonPressed;
+        GetParent<SceneManager>().LoadPetScene(name, useOverlay);
+    }
 
 	private void AddPets(string[] folders)
 	{

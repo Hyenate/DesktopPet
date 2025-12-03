@@ -35,13 +35,17 @@ public partial class Pet : CharacterBody2D
 		{State.Hop, 15}
 	};
 
-	public int weightTotal = 0;
-	public Direction dir = Direction.S;
-	public const float Speed = 300.0f;
-	public AnimatedSprite2D anims;
-	public Timer timer;
-	public Random rand;
+	public bool UsingOverlay {get; set;}
+
+	private int weightTotal = 0;
+	private Direction dir = Direction.S;
+	private const float Speed = 300.0f;
+	private AnimatedSprite2D anims;
+	private Timer timer;
+	private Random rand;
 	private bool initialized;
+	private Polygon2D polygon2D;
+	private ThrowableBehavior throwableBehavior;
 
 	private const float Gravity = 980f;
 	private const float TerminalVelocity = 2000f;
@@ -66,12 +70,16 @@ public partial class Pet : CharacterBody2D
 		rand = new Random();
 		Position = GetViewportRect().Size / 2;
 		Velocity = new Vector2(0,-400);		// Initial Upwards Velocity
+		polygon2D = GetNode<Polygon2D>("ThrowableBehavior/Polygon2D");
+		GetWindow().MousePassthrough = false;
 
-		InitializeOSSpecificBehavior();
+		throwableBehavior = GetNode<ThrowableBehavior>("ThrowableBehavior");
+		throwableBehavior.OnDragStarted += OnDragStarted;
+		throwableBehavior.OnDragStopped += OnDragStopped;
+		throwableBehavior.OnThrown += OnThrown;
+
 		initialized = true;
     }
-
-	public virtual void InitializeOSSpecificBehavior() {}
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -79,14 +87,20 @@ public partial class Pet : CharacterBody2D
         {
           	// Apply gravity regardless of throwable state
 			Velocity = ApplyGravity(Velocity, delta);
-			RunOSSpecificBehavior(delta);	
+			if(!UsingOverlay)
+            {
+            	GetWindow().MousePassthroughPolygon = GetOffsetPolygon();
+            }
+			// Only handle normal physics if ThrowableBehavior allows it
+			if (throwableBehavior.ShouldParentHandlePhysics())
+			{
+				ApplyNormalPhysics(delta);
+			}	
 			MoveAndSlide();  
         }
 	}
 
-	public virtual void RunOSSpecificBehavior(double delta) {}
-
-		private Vector2 ApplyGravity(Vector2 velocity, double delta)
+	private Vector2 ApplyGravity(Vector2 velocity, double delta)
 	{
 		velocity.Y += Gravity * (float)delta;
 		
@@ -114,6 +128,15 @@ public partial class Pet : CharacterBody2D
 		Velocity = velocity;
 	}
 
+	private Vector2[] GetOffsetPolygon()
+	{
+		Vector2[] offsetPolygon = new Vector2[4];
+		for(int i = 0; i < 4; i++)
+		{
+			offsetPolygon[i] = polygon2D.Polygon[i] + polygon2D.GlobalPosition;
+		}
+		return offsetPolygon;
+	}
 
 	private void ApplyWalkingBehavior(ref Vector2 velocity)
 	{
@@ -242,5 +265,17 @@ public partial class Pet : CharacterBody2D
 			animationString += "E";
 		}
 		anims.Play(animationString);
+	}
+
+
+	// Public methods for TransparentOverlay
+	public bool IsBeingDragged()
+	{
+		return throwableBehavior?.IsBeingDragged ?? false;
+	}
+
+	public bool IsBeingThrown()
+	{
+		return throwableBehavior?.IsBeingThrown ?? false;
 	}
 }

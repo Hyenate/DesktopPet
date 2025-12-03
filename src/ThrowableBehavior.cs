@@ -40,7 +40,6 @@ public partial class ThrowableBehavior : Node, IThrowable
 		}
 		
 		ProcessMode = ProcessModeEnum.Always;
-		//GD.Print("ThrowableBehavior initialized");
 	}
 
 	public override void _Process(double delta)
@@ -73,7 +72,7 @@ public partial class ThrowableBehavior : Node, IThrowable
 		return shouldParentHandlePhysics;
 	}
 
-	public virtual bool IsMousePressed() {
+	public bool IsMousePressed() {
 		return Input.IsActionPressed("lClick");
 	}
 
