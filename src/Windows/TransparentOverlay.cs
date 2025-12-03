@@ -19,6 +19,29 @@ public partial class TransparentOverlay : Node
 	[DllImport("user32.dll")]
 	private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
+	[DllImport("user32.dll")]
+	private static extern short GetAsyncKeyState(int vKey);
+	private const int VK_LBUTTON = 0x01;
+
+	[DllImport("user32.dll", CharSet = CharSet.Auto)]
+    public static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr SetCursor(IntPtr hCursor);
+
+	[DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct RECT
+	{
+		public int Left;
+		public int Top;
+		public int Right;
+		public int Bottom;
+	}
+
 	private const int GWL_EXSTYLE = -20;
 	private const int WS_EX_LAYERED = 0x80000;
 	private const int WS_EX_TRANSPARENT = 0x20;
@@ -29,10 +52,15 @@ public partial class TransparentOverlay : Node
 	private const uint SWP_NOACTIVATE = 0x0010;
 	private const uint SWP_NOZORDER = 0x0004;
 	private const uint SWP_FRAMECHANGED = 0x0020;
+	private const int IDC_ARROW = 32512;
+	private const int IDC_SIZENWSE = 32642;
+	private const int IDC_SIZENESW = 32643;
+	private const int IDC_SIZEWE = 32644;
+	private const int IDC_SIZENS = 32645;
 
 	private IntPtr windowHandle;
 	public WindowsPet pet;
-	private int topBarHeight = 25;
+	private int topBarwindowHeight = 25;
 	private bool isClickThrough = false;
 	private bool isWindows;
 
@@ -60,7 +88,7 @@ public partial class TransparentOverlay : Node
 			windowHandle = GetActiveWindow();
 			
 			// Find the pet
-			pet = GetNode<WindowsPet>("/root/Node2D/Pet"); // Adjust path as needed
+			pet = GetParent<WindowsPet>();
 			
 			// Set up layered window with transparency
 			SetupLayeredWindow();
@@ -77,15 +105,8 @@ public partial class TransparentOverlay : Node
 	}
 
 	public override void _Process(double delta)
-	{
-		if (!isWindows)
-		{
-			GD.Print("Not on windows");
-			return;
-		}
-		
+	{		
 		if (windowHandle == IntPtr.Zero) return;
-		
 		UpdateClickThrough();
 	}
 
@@ -113,21 +134,17 @@ public partial class TransparentOverlay : Node
 		if (pet == null) return;
 
 		var mousePos = GetGlobalMousePosition();
-		
-		// Check if mouse is in top bar area
-		bool isInTopBar = mousePos.Y <= topBarHeight;
-		
-		// Check if mouse is near pet
+
+		bool isInTopBar = mousePos.Y <= topBarwindowHeight;
+		bool isMouseNearBorder = IsMouseNearBorder(mousePos);
 		bool isNearPet = IsMouseNearPet(mousePos);
-		
-		// Check if pet is being dragged or thrown
 		bool isPetActive = pet.IsBeingDragged() || pet.IsBeingThrown();
-		
+
 		// Make window click-through EXCEPT when:
 		// - Mouse is in top bar (for window moving)
 		// - Mouse is near pet AND pet is not active (for starting drag)
 		// - Pet is being dragged or thrown (so we can continue interaction)
-		bool shouldBeClickThrough = !(isInTopBar || (isNearPet && !isPetActive) || isPetActive);
+		bool shouldBeClickThrough = !(isInTopBar || isMouseNearBorder || (isNearPet && !isPetActive) || isPetActive);
 
 		if (shouldBeClickThrough != isClickThrough)
 		{
@@ -135,6 +152,77 @@ public partial class TransparentOverlay : Node
 			SetWindowClickThrough(shouldBeClickThrough);
 			isClickThrough = shouldBeClickThrough;
 		}
+	}
+
+	//	TODO:
+	//		Fix bug where resizing stops if dragging too fast.
+	private bool IsMouseNearBorder(Vector2 mousePos)	
+	{
+        if (GetWindowRect(windowHandle, out RECT rect))
+        {
+            int windowWidth = rect.Right - rect.Left;
+            int windowHeight = rect.Bottom - rect.Top;
+
+            // Upper/Lower Bounds
+            if (mousePos.Y > -10 && mousePos.Y < windowHeight + 10)
+            {
+                // Left Border
+                if (Math.Abs(mousePos.X) < 10)
+                {
+                    SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZEWE));
+                    if (IsMousePressed())
+                    {
+                        SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left + (int)mousePos.X, rect.Top,
+                            windowWidth - (int)mousePos.X, windowHeight, SWP_NOACTIVATE);
+                    }
+                    return true;
+                }
+                // Right Border
+                else if (Math.Abs(windowWidth - mousePos.X - 20) < 10)
+                {
+					SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZEWE));
+                    if (IsMousePressed())
+                    {
+                        SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
+                            (int)mousePos.X + 20, windowHeight, SWP_NOMOVE | SWP_NOACTIVATE);
+                    }
+                    return true;
+                }
+            }
+			// Left/Right Bounds
+			if(mousePos.X > -10 && mousePos.X < windowWidth + 10)
+            {
+                // Top Border
+				if (mousePos.Y > -topBarwindowHeight - 20 && mousePos.Y < -topBarwindowHeight - 10)
+                {
+                    SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZENS));
+                    if (IsMousePressed())
+                    {
+                        SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left, rect.Top + (int)mousePos.Y + topBarwindowHeight + 15,
+                            windowWidth, windowHeight - (int)mousePos.Y - topBarwindowHeight - 15, SWP_NOACTIVATE);
+                    }
+                    return true;
+                }
+				// Bottom Border
+				if (Math.Abs(windowHeight - mousePos.Y - topBarwindowHeight - 20) < 10)
+                {
+                    SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZENS));
+                    if (IsMousePressed())
+                    {
+                        SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
+                            windowWidth, (int)mousePos.Y + topBarwindowHeight + 20 , SWP_NOMOVE | SWP_NOACTIVATE);
+                    }
+                    return true;
+                }
+            }
+        }
+
+        SetCursor(LoadCursor(IntPtr.Zero, IDC_ARROW));
+		return false;
+	}
+
+	private static bool IsMousePressed() {
+		return (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
 	}
 
 	private bool IsMouseNearPet(Vector2 mousePos)

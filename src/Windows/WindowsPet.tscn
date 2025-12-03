@@ -1,12 +1,18 @@
-[gd_scene load_steps=5 format=3 uid="uid://y3kkqphgcevl"]
+[gd_scene load_steps=6 format=3 uid="uid://y3kkqphgcevl"]
 
 [ext_resource type="PackedScene" uid="uid://dl6llrue821cj" path="res://scenes/pet.tscn" id="1_u8rja"]
 [ext_resource type="Script" uid="uid://c866d66ccql6r" path="res://src/Windows/WindowsPet.cs" id="2_72ky2"]
 [ext_resource type="Script" uid="uid://b60ph44chi6kf" path="res://src/Windows/TransparentOverlay.cs" id="2_u8rja"]
 [ext_resource type="Script" uid="uid://nk6sj8qg3an2" path="res://src/Windows/WindowsThrowableBehavior.cs" id="3_72ky2"]
 
+[sub_resource type="SpriteFrames" id="SpriteFrames_mdqe4"]
+resource_local_to_scene = true
+
 [node name="Pet" instance=ExtResource("1_u8rja")]
 script = ExtResource("2_72ky2")
+
+[node name="SpriteHandler" parent="." index="0"]
+sprite_frames = SubResource("SpriteFrames_mdqe4")
 
 [node name="Overlay" type="Node2D" parent="." index="3"]
 script = ExtResource("2_u8rja")

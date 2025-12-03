@@ -18,7 +18,6 @@ config/icon="uid://c3r6sihl0pm2m"
 
 [display]
 
-window/size/always_on_top=true
 window/size/transparent=true
 window/energy_saving/keep_screen_on=false
 window/per_pixel_transparency/allowed=true
