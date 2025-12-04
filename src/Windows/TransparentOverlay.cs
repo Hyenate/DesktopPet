@@ -24,14 +24,13 @@ public partial class TransparentOverlay : Node
 	private const int VK_LBUTTON = 0x01;
 
 	[DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
-
-    [DllImport("user32.dll")]
-    public static extern IntPtr SetCursor(IntPtr hCursor);
+	public static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
 
 	[DllImport("user32.dll")]
-    //[return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+	public static extern IntPtr SetCursor(IntPtr hCursor);
+
+	[DllImport("user32.dll")]
+	public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
 	[StructLayout(LayoutKind.Sequential)]
 	public struct RECT
@@ -60,13 +59,13 @@ public partial class TransparentOverlay : Node
 	private const int MouseSize = 20;		// Right/Bottom Window border are offset by 20 pixels. MouseSize?
 
 	private enum WindowSide
-    {
-        Left,
+	{
+		Left,
 		Top,
 		Right,
 		Bottom,
 		None
-    }
+	}
 
 	private IntPtr windowHandle;
 	public Pet pet;
@@ -167,93 +166,93 @@ public partial class TransparentOverlay : Node
 
 	private bool IsMouseNearBorder(Vector2 mousePos)	
 	{
-        if (GetWindowRect(windowHandle, out RECT rect))
-        {
-            int windowWidth = rect.Right - rect.Left;
-            int windowHeight = rect.Bottom - rect.Top;
+		if (GetWindowRect(windowHandle, out RECT rect))
+		{
+			int windowWidth = rect.Right - rect.Left;
+			int windowHeight = rect.Bottom - rect.Top;
 
-            // Upper/Lower Bounds
-            if (mousePos.Y > -10 && mousePos.Y < windowHeight + 10)
-            {
-                if (Math.Abs(mousePos.X) < 10 || resizingWindowSide == WindowSide.Left)
-                {
-                    HandleWindowResize(WindowSide.Left, mousePos, rect);
-                    return true;
-                }
-                else if (Math.Abs(windowWidth - mousePos.X - MouseSize) < 10 || resizingWindowSide == WindowSide.Right)
-                {
-                    HandleWindowResize(WindowSide.Right, mousePos, rect);
-                    return true;
-                }
-            }
+			// Upper/Lower Bounds
+			if (mousePos.Y > -10 && mousePos.Y < windowHeight + 10)
+			{
+				if (Math.Abs(mousePos.X) < 10 || resizingWindowSide == WindowSide.Left)
+				{
+					HandleWindowResize(WindowSide.Left, mousePos, rect);
+					return true;
+				}
+				else if (Math.Abs(windowWidth - mousePos.X - MouseSize) < 10 || resizingWindowSide == WindowSide.Right)
+				{
+					HandleWindowResize(WindowSide.Right, mousePos, rect);
+					return true;
+				}
+			}
 			// Left/Right Bounds
 			if(mousePos.X > -10 && mousePos.X < windowWidth + 10)
-            {
+			{
 				if ((mousePos.Y > -topBarwindowHeight - 20 && mousePos.Y < -topBarwindowHeight - 10) || 
 					resizingWindowSide == WindowSide.Top)
-                {
-                    HandleWindowResize(WindowSide.Top, mousePos, rect);
-                    return true;
-                }
+				{
+					HandleWindowResize(WindowSide.Top, mousePos, rect);
+					return true;
+				}
 				if (Math.Abs(windowHeight - mousePos.Y - topBarwindowHeight - MouseSize) < 10 || 
 					resizingWindowSide == WindowSide.Bottom)
-                {
-                    HandleWindowResize(WindowSide.Bottom, mousePos, rect);
-                    return true;
-                }
-            }
-        }
+				{
+					HandleWindowResize(WindowSide.Bottom, mousePos, rect);
+					return true;
+				}
+			}
+		}
 
-        SetCursor(LoadCursor(IntPtr.Zero, IDC_ARROW));
+		SetCursor(LoadCursor(IntPtr.Zero, IDC_ARROW));
 		return false;
 	}
 
 	private void HandleWindowResize(WindowSide side, Vector2 mousePos, RECT rect)
-    {
+	{
 		if(side == WindowSide.Left || side == WindowSide.Right)
-        {
-            SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZEWE));
-        }
+		{
+			SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZEWE));
+		}
 		else if(side == WindowSide.Top || side == WindowSide.Bottom)
-        {
-            SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZENS));
-        }
+		{
+			SetCursor(LoadCursor(IntPtr.Zero, IDC_SIZENS));
+		}
 
 		if (IsMousePressed())
 		{
 			int windowWidth = rect.Right - rect.Left;
-            int windowHeight = rect.Bottom - rect.Top;
+			int windowHeight = rect.Bottom - rect.Top;
 
 			if(side == WindowSide.Left)
-            {
+			{
 				resizingWindowSide = WindowSide.Left;
-                SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left + (int)mousePos.X, rect.Top,
+				SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left + (int)mousePos.X, rect.Top,
 					windowWidth - (int)mousePos.X, windowHeight, SWP_NOACTIVATE);
-            }
+			}
 			else if (side == WindowSide.Right)
-            {
+			{
 				resizingWindowSide = WindowSide.Right;
-                SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
-                    (int)mousePos.X + MouseSize, windowHeight, SWP_NOMOVE | SWP_NOACTIVATE);
-            }
+				SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
+					(int)mousePos.X + MouseSize, windowHeight, SWP_NOMOVE | SWP_NOACTIVATE);
+			}
 			else if(side == WindowSide.Top)
-            {
+			{
 				resizingWindowSide = WindowSide.Top;
-                SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left, rect.Top + (int)mousePos.Y + topBarwindowHeight + 15,
-                    windowWidth, windowHeight - (int)mousePos.Y - topBarwindowHeight - 15, SWP_NOACTIVATE);
-            }
+				SetWindowPos(windowHandle, HWND_TOPMOST, rect.Left, rect.Top + (int)mousePos.Y + topBarwindowHeight + 15,
+					windowWidth, windowHeight - (int)mousePos.Y - topBarwindowHeight - 15, SWP_NOACTIVATE);
+			}
 			else if(side == WindowSide.Bottom)
-            {
+			{
 				resizingWindowSide = WindowSide.Bottom;
-                SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
-                    windowWidth, (int)mousePos.Y + topBarwindowHeight + MouseSize , SWP_NOMOVE | SWP_NOACTIVATE);
-            }
+				SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0,
+					windowWidth, (int)mousePos.Y + topBarwindowHeight + MouseSize , SWP_NOMOVE | SWP_NOACTIVATE);
+			}
 		}
 		else
-        {
-            resizingWindowSide = WindowSide.None;
-        }
-    }
+		{
+			resizingWindowSide = WindowSide.None;
+		}
+	}
 
 	private static bool IsMousePressed() {
 		return (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;

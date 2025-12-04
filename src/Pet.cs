@@ -44,11 +44,11 @@ public partial class Pet : CharacterBody2D
 	private Timer timer;
 	private Random rand;
 	private bool initialized;
-	private Polygon2D polygon2D;
 	private ThrowableBehavior throwableBehavior;
 
 	private const float Gravity = 980f;
 	private const float TerminalVelocity = 2000f;
+	private static readonly Vector2 InitialVelocity = new(0, -400);
 
     public override void _Ready()
     {
@@ -69,8 +69,7 @@ public partial class Pet : CharacterBody2D
 		timer.Start();
 		rand = new Random();
 		Position = GetViewportRect().Size / 2;
-		Velocity = new Vector2(0,-400);		// Initial Upwards Velocity
-		polygon2D = GetNode<Polygon2D>("ThrowableBehavior/Polygon2D");
+		Velocity = InitialVelocity;		// Initial Upwards Velocity
 		GetWindow().MousePassthrough = false;
 
 		throwableBehavior = GetNode<ThrowableBehavior>("ThrowableBehavior");
@@ -85,13 +84,13 @@ public partial class Pet : CharacterBody2D
 	{
 		if(initialized)
         {
-          	// Apply gravity regardless of throwable state
 			Velocity = ApplyGravity(Velocity, delta);
+
 			if(!UsingOverlay)
             {
             	GetWindow().MousePassthroughPolygon = GetOffsetPolygon();
             }
-			// Only handle normal physics if ThrowableBehavior allows it
+
 			if (throwableBehavior.ShouldParentHandlePhysics())
 			{
 				ApplyNormalPhysics(delta);
@@ -130,11 +129,15 @@ public partial class Pet : CharacterBody2D
 
 	private Vector2[] GetOffsetPolygon()
 	{
-		Vector2[] offsetPolygon = new Vector2[4];
-		for(int i = 0; i < 4; i++)
-		{
-			offsetPolygon[i] = polygon2D.Polygon[i] + polygon2D.GlobalPosition;
-		}
+		Vector2 size = anims.SpriteFrames.GetFrameTexture(anims.Animation, anims.Frame).GetSize();
+		Vector2[] offsetPolygon =
+        [
+            (new Vector2(-size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
+            (new Vector2(size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
+            (new Vector2(size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
+            (new Vector2(-size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
+        ];
+		
 		return offsetPolygon;
 	}
 

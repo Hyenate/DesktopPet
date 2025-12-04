@@ -3,7 +3,7 @@ using System;
 
 public partial class Menu : Control
 {
-	private VBoxContainer vBox;
+	private VBoxContainer petCollection;
 	private PackedScene petSelection_res;
 	private ConfigFile config;
 	private const string configPath = "user://pets.cfg";
@@ -11,8 +11,14 @@ public partial class Menu : Control
 
 	public override void _Ready()
 	{
+		// Hide incompatible modes
+		if(OS.GetName() != "Windows")
+		{
+			GetNode<HBoxContainer>("ScrollContainer/VBoxContainer/Windowed Mode").Visible = false;
+		}
+
 		GetWindow().FilesDropped += AddPets;
-		vBox = GetNode<VBoxContainer>("ScrollContainer/VBoxContainer/Selection");
+		petCollection = GetNode<VBoxContainer>("ScrollContainer/VBoxContainer/Collection");
 		petSelection_res = ResourceLoader.Load<PackedScene>("res://scenes/petSelectionContainer.tscn");
 		config = new ConfigFile();
 		Error err = config.Load(configPath);
@@ -27,16 +33,33 @@ public partial class Menu : Control
 		foreach(string name in config.GetSectionKeys(configSection_Pet))
 		{
 			PetSelectionContainer petSelection = petSelection_res.Instantiate<PetSelectionContainer>();
-			vBox.AddChild(petSelection);
+			petCollection.AddChild(petSelection);
 			petSelection.LoadPetDetails(name);
 		}
 	}
 
 	public void LoadSelectedPet(string name)
-    {
+	{
 		bool useOverlay = GetNode<CheckBox>("ScrollContainer/VBoxContainer/Windowed Mode/CheckBox").ButtonPressed;
-        GetParent<SceneManager>().LoadPetScene(name, useOverlay);
-    }
+		GetParent<SceneManager>().LoadPetScene(name, useOverlay);
+	}
+
+	private void OnLoadRandomPressed()
+	{
+		Random rand = new Random();
+		int choice = rand.Next(petCollection.GetChildCount());
+		LoadSelectedPet(petCollection.GetChild(choice).Name);
+	}
+
+	private void OnAddPetPressed()
+	{
+		GetNode<FileDialog>("ScrollContainer/VBoxContainer/RandomOrAdd/Add/FileDialog").Visible = true;
+	}
+
+	private void AddPets(string folder)
+	{
+		AddPets([folder]);
+	}
 
 	private void AddPets(string[] folders)
 	{
@@ -59,7 +82,7 @@ public partial class Menu : Control
 				config.SetValue(configSection_Pet, "Pet" + newestIndex, 0);
 
 				PetSelectionContainer petSelection = petSelection_res.Instantiate<PetSelectionContainer>();
-				vBox.AddChild(petSelection);
+				petCollection.AddChild(petSelection);
 				petSelection.LoadPetDetails("Pet" + newestIndex);
 			}
 			else
@@ -91,7 +114,7 @@ public partial class Menu : Control
 	public void SaveCurrentPetOrder()
 	{
 		config.Clear();
-		foreach(Node petContainer in vBox.GetChildren())
+		foreach(Node petContainer in petCollection.GetChildren())
 		{
 			config.SetValue(configSection_Pet, petContainer.Name, 0);
 		}

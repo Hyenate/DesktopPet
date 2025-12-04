@@ -6,7 +6,7 @@ public partial class ThrowableBehavior : Node, IThrowable
 	// Interface implementation
 	public bool IsBeingDragged { get; private set; }
 	public bool IsBeingThrown { get; private set; }
-	public float DragRadius { get; set; } = 50f;
+	public float DragRadius { get; set; } = 80f;
 	
 	// Events
 	public event Action OnDragStarted;

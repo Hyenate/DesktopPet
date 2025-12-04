@@ -18,10 +18,4 @@ wait_time = 8.0
 [node name="ThrowableBehavior" type="Node2D" parent="."]
 script = ExtResource("2_8wqpi")
 
-[node name="Polygon2D" type="Polygon2D" parent="ThrowableBehavior"]
-visible = false
-color = Color(1, 1, 1, 0.41568628)
-offset = Vector2(0, -20)
-polygon = PackedVector2Array(-50, -50, 50, -50, 50, 50, -50, 50)
-
 [connection signal="timeout" from="Timer" to="." method="RandomizeState"]

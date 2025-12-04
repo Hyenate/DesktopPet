@@ -42,6 +42,37 @@ text = "Windowed Mode"
 [node name="CheckBox" type="CheckBox" parent="ScrollContainer/VBoxContainer/Windowed Mode"]
 layout_mode = 2
 
-[node name="Selection" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="Collection" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="RandomOrAdd" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Random" type="Button" parent="ScrollContainer/VBoxContainer/RandomOrAdd"]
+texture_filter = 3
+custom_minimum_size = Vector2(200, 120)
+layout_mode = 2
+text = "LOAD
+RANDOM"
+expand_icon = true
+
+[node name="Add" type="Button" parent="ScrollContainer/VBoxContainer/RandomOrAdd"]
+texture_filter = 3
+custom_minimum_size = Vector2(200, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+text = " + Add Pet"
+expand_icon = true
+
+[node name="FileDialog" type="FileDialog" parent="ScrollContainer/VBoxContainer/RandomOrAdd/Add"]
+oversampling_override = 1.0
+title = "Open a Directory"
+dialog_hide_on_ok = true
+file_mode = 2
+access = 2
+use_native_dialog = true
+
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/RandomOrAdd/Random" to="." method="OnLoadRandomPressed"]
+[connection signal="pressed" from="ScrollContainer/VBoxContainer/RandomOrAdd/Add" to="." method="OnAddPetPressed"]
+[connection signal="dir_selected" from="ScrollContainer/VBoxContainer/RandomOrAdd/Add/FileDialog" to="." method="AddPets"]
