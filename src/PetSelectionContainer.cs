@@ -11,8 +11,8 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	public override void _Ready()
 	{
-		menuHandler = GetNode<Menu>("../../../../../Menu");
-		icon = GetNode<TextureRect>("Icon");
+		menuHandler = GetNode<Menu>("../../../../../../../Menu");
+		icon = GetNode<TextureRect>("LoadPet/HBoxContainer/Icon");
 		nameEdit = GetNode<LineEdit>("Name");
 		Name = "Pet";
 		newName = "";
@@ -94,11 +94,11 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	private void OnMoveUpPressed()
 	{
-		
+		menuHandler.MovePetUp(this);
 	}
 
 	private void OnMoveDownPressed()
 	{
-		
+		menuHandler.MovePetDown(this);
 	}
 }

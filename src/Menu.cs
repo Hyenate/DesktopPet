@@ -14,11 +14,11 @@ public partial class Menu : Control
 		// Hide incompatible modes
 		if(OS.GetName() != "Windows")
 		{
-			GetNode<HBoxContainer>("ScrollContainer/VBoxContainer/Windowed Mode").Visible = false;
+			GetNode<HBoxContainer>("VBoxContainer/Top Bar").Visible = false;
 		}
 
 		GetWindow().FilesDropped += AddPets;
-		petCollection = GetNode<VBoxContainer>("ScrollContainer/VBoxContainer/Collection");
+		petCollection = GetNode<VBoxContainer>("VBoxContainer/Selection/ScrollContainer/VBoxContainer/Collection");
 		petSelection_res = ResourceLoader.Load<PackedScene>("res://scenes/petSelectionContainer.tscn");
 		config = new ConfigFile();
 		Error err = config.Load(configPath);
@@ -40,7 +40,7 @@ public partial class Menu : Control
 
 	public void LoadSelectedPet(string name)
 	{
-		bool useOverlay = GetNode<CheckBox>("ScrollContainer/VBoxContainer/Windowed Mode/CheckBox").ButtonPressed;
+		bool useOverlay = GetNode<CheckBox>("VBoxContainer/Top Bar/Windowed Mode/CheckBox").ButtonPressed;
 		GetParent<SceneManager>().LoadPetScene(name, useOverlay);
 	}
 
@@ -57,7 +57,7 @@ public partial class Menu : Control
 
 	private void OnAddPetPressed()
 	{
-		GetNode<FileDialog>("ScrollContainer/VBoxContainer/RandomOrAdd/Add/FileDialog").Visible = true;
+		GetNode<FileDialog>("VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add/FileDialog").Visible = true;
 	}
 
 	private void AddPets(string folder)
@@ -114,6 +114,24 @@ public partial class Menu : Control
 		config.EraseSectionKey(configSection_Pet, petName);
 		config.Save(configPath);
 	}
+
+	public void MovePetUp(PetSelectionContainer petSelection)
+    {
+		if(petSelection.GetIndex() > 0)
+        {
+            petCollection.MoveChild(petSelection, petSelection.GetIndex() - 1);
+			SaveCurrentPetOrder();
+        }
+    }
+	
+	public void MovePetDown(PetSelectionContainer petSelection)
+    {
+        if(petSelection.GetIndex() < petCollection.GetChildCount() - 1)
+        {
+            petCollection.MoveChild(petSelection, petSelection.GetIndex() + 1);
+			SaveCurrentPetOrder();
+        }
+    }
 
 	public void SaveCurrentPetOrder()
 	{

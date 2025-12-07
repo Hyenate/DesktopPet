@@ -1,6 +1,65 @@
-[gd_scene load_steps=2 format=3 uid="uid://b7lo7xmarfae7"]
+[gd_scene load_steps=12 format=3 uid="uid://b7lo7xmarfae7"]
 
 [ext_resource type="Script" uid="uid://dbdgy664kwf6v" path="res://src/Menu.cs" id="1_yqeox"]
+[ext_resource type="Theme" uid="uid://bwrg80lf02vk" path="res://assets/Themes/GUI_Theme.tres" id="2_vjb58"]
+[ext_resource type="FontFile" uid="uid://bf2nhmf7rgjeo" path="res://assets/JockeyOne-Regular.ttf" id="3_13sgg"]
+[ext_resource type="StyleBox" uid="uid://blcvtq4nr6fmg" path="res://assets/Themes/ButtonStyle_Pressed.tres" id="4_i6lef"]
+[ext_resource type="Texture2D" uid="uid://rv16o2372jex" path="res://assets/random.png" id="4_mhnvy"]
+[ext_resource type="StyleBox" uid="uid://fs4mycvepp6c" path="res://assets/Themes/ButtonStyle_Hover.tres" id="5_70i5f"]
+[ext_resource type="StyleBox" uid="uid://cxa7idpn52a1j" path="res://assets/Themes/ButtonStyle_Normal.tres" id="6_mj5lg"]
+[ext_resource type="StyleBox" uid="uid://d354wvfor01l0" path="res://assets/Themes/LineEditStyle_Normals.tres" id="7_ufwb2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxicj"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0.75)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t2iew"]
+
+[sub_resource type="Theme" id="Theme_6cdou"]
+Button/font_sizes/font_size = 20
+Button/fonts/font = ExtResource("3_13sgg")
+Button/styles/disabled = ExtResource("4_i6lef")
+Button/styles/focus = ExtResource("5_70i5f")
+Button/styles/hover = ExtResource("5_70i5f")
+Button/styles/normal = ExtResource("6_mj5lg")
+Button/styles/pressed = ExtResource("4_i6lef")
+Label/colors/font_color = Color(1, 1, 1, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/colors/font_shadow_color = Color(0, 0, 0, 0)
+Label/constants/line_spacing = 3
+Label/constants/outline_size = 0
+Label/constants/shadow_offset_x = 1
+Label/constants/shadow_offset_y = 1
+Label/constants/shadow_outline_size = 1
+Label/font_sizes/font_size = 20
+Label/fonts/font = ExtResource("3_13sgg")
+Label/styles/focus = SubResource("StyleBoxFlat_lxicj")
+Label/styles/normal = SubResource("StyleBoxEmpty_t2iew")
+LineEdit/font_sizes/font_size = 20
+LineEdit/fonts/font = ExtResource("3_13sgg")
+LineEdit/styles/normal = ExtResource("7_ufwb2")
+MarginContainer/constants/margin_bottom = 5
+MarginContainer/constants/margin_left = 10
+MarginContainer/constants/margin_right = 10
+MarginContainer/constants/margin_top = 5
+Tree/fonts/font = ExtResource("3_13sgg")
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -18,54 +77,112 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.2592937, 0.2592937, 0.2592937, 1)
+color = Color(0.14044744, 0.14044744, 0.1404475, 1)
 
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
+[node name="Tip" type="Label" parent="ColorRect"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_vjb58")
+theme_override_colors/font_color = Color(0.59717613, 0.59717613, 0.5971761, 1)
+theme_override_font_sizes/font_size = 30
+text = "Click \"Add Pet\" or
+Drag and drop Sprite folder
+onto Window"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
+theme = SubResource("Theme_6cdou")
 
-[node name="Windowed Mode" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="Top Bar" type="ColorRect" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+color = Color(0.41215247, 0.41215247, 0.41215247, 1)
 
-[node name="Label" type="Label" parent="ScrollContainer/VBoxContainer/Windowed Mode"]
+[node name="Windowed Mode" type="HBoxContainer" parent="VBoxContainer/Top Bar"]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 1132.0
+offset_bottom = 33.0
+alignment = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/Top Bar/Windowed Mode"]
 layout_mode = 2
 text = "Windowed Mode"
 
-[node name="CheckBox" type="CheckBox" parent="ScrollContainer/VBoxContainer/Windowed Mode"]
+[node name="CheckBox" type="CheckBox" parent="VBoxContainer/Top Bar/Windowed Mode"]
 layout_mode = 2
+tooltip_text = "Use a transparent window instead of the default \"Fullscreen\" mode."
 
-[node name="Collection" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="Selection" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme = SubResource("Theme_6cdou")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/Selection"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Selection/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="RandomOrAdd" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="Spacer" type="ColorRect" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(1, 1, 1, 0)
+
+[node name="Collection" type="VBoxContainer" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Spacer2" type="ColorRect" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(1, 1, 1, 0)
+
+[node name="Bottom Bar" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_6cdou")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Bottom Bar"]
 layout_mode = 2
 
-[node name="Random" type="Button" parent="ScrollContainer/VBoxContainer/RandomOrAdd"]
-texture_filter = 3
-custom_minimum_size = Vector2(200, 120)
+[node name="Spacer" type="ColorRect" parent="VBoxContainer/Bottom Bar/VBoxContainer"]
+custom_minimum_size = Vector2(0, 2.915)
+layout_mode = 2
+color = Color(0.8217887, 0.82178867, 0.82178867, 1)
+
+[node name="RandomOrAdd" type="HBoxContainer" parent="VBoxContainer/Bottom Bar/VBoxContainer"]
+layout_mode = 2
+
+[node name="Random" type="Button" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd"]
+custom_minimum_size = Vector2(250, 80)
 layout_mode = 2
 text = "LOAD
 RANDOM"
-expand_icon = true
+icon = ExtResource("4_mhnvy")
 
-[node name="Add" type="Button" parent="ScrollContainer/VBoxContainer/RandomOrAdd"]
+[node name="Add" type="Button" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd"]
 texture_filter = 3
-custom_minimum_size = Vector2(200, 120)
 layout_mode = 2
 size_flags_horizontal = 3
 text = " + Add Pet"
 expand_icon = true
 
-[node name="FileDialog" type="FileDialog" parent="ScrollContainer/VBoxContainer/RandomOrAdd/Add"]
+[node name="FileDialog" type="FileDialog" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add"]
 oversampling_override = 1.0
 title = "Open a Directory"
 dialog_hide_on_ok = true
@@ -73,6 +190,6 @@ file_mode = 2
 access = 2
 use_native_dialog = true
 
-[connection signal="pressed" from="ScrollContainer/VBoxContainer/RandomOrAdd/Random" to="." method="OnLoadRandomPressed"]
-[connection signal="pressed" from="ScrollContainer/VBoxContainer/RandomOrAdd/Add" to="." method="OnAddPetPressed"]
-[connection signal="dir_selected" from="ScrollContainer/VBoxContainer/RandomOrAdd/Add/FileDialog" to="." method="AddPets"]
+[connection signal="pressed" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Random" to="." method="OnLoadRandomPressed"]
+[connection signal="pressed" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add" to="." method="OnAddPetPressed"]
+[connection signal="dir_selected" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add/FileDialog" to="." method="AddPets"]

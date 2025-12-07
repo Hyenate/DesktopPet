@@ -1,28 +1,66 @@
-[gd_scene load_steps=3 format=3 uid="uid://d0jny2obrh31e"]
+[gd_scene load_steps=7 format=3 uid="uid://d0jny2obrh31e"]
 
 [ext_resource type="Script" uid="uid://bntsq7sjkjuce" path="res://src/PetSelectionContainer.cs" id="1_fjb7i"]
+[ext_resource type="Theme" uid="uid://bwrg80lf02vk" path="res://assets/Themes/GUI_Theme.tres" id="1_xn6bf"]
 [ext_resource type="Texture2D" uid="uid://c3r6sihl0pm2m" path="res://icon.png" id="2_ojuyx"]
+[ext_resource type="Texture2D" uid="uid://korpkf1u3uux" path="res://assets/trash.png" id="6_dqvrd"]
+[ext_resource type="Texture2D" uid="uid://n3i3dpukdo6y" path="res://assets/ArrowUp.png" id="8_trd3q"]
+[ext_resource type="Texture2D" uid="uid://djj6o7rck0lng" path="res://assets/ArrowDown.png" id="9_l3atj"]
 
 [node name="PetSelectionContainer" type="HBoxContainer"]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 120.0
 grow_horizontal = 2
+theme = ExtResource("1_xn6bf")
 script = ExtResource("1_fjb7i")
 
 [node name="LoadPet" type="Button" parent="."]
 texture_filter = 3
-custom_minimum_size = Vector2(200, 120)
+custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
-text = "LOAD"
+alignment = 2
+icon_alignment = 1
 expand_icon = true
 
-[node name="Icon" type="TextureRect" parent="."]
-texture_filter = 3
-custom_minimum_size = Vector2(200, 0)
+[node name="HBoxContainer" type="HBoxContainer" parent="LoadPet"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Icon" type="TextureRect" parent="LoadPet/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 texture = ExtResource("2_ojuyx")
 stretch_mode = 5
+
+[node name="Label" type="Label" parent="LoadPet/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 24
+text = "LOAD"
+vertical_alignment = 1
+
+[node name="Move" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="MoveUp" type="Button" parent="Move"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_vertical = 3
+icon = ExtResource("8_trd3q")
+icon_alignment = 1
+
+[node name="MoveDown" type="Button" parent="Move"]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_vertical = 3
+icon = ExtResource("9_l3atj")
+icon_alignment = 1
 
 [node name="Name" type="LineEdit" parent="."]
 layout_mode = 2
@@ -43,9 +81,10 @@ initial_position = 1
 size = Vector2i(200, 100)
 
 [node name="Delete" type="Button" parent="."]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-text = "TRASH"
+icon = ExtResource("6_dqvrd")
+icon_alignment = 1
 
 [node name="AcceptDialog" type="AcceptDialog" parent="Delete"]
 oversampling_override = 1.0
@@ -54,24 +93,14 @@ initial_position = 1
 size = Vector2i(200, 100)
 ok_button_text = "Confirm"
 
-[node name="Move" type="VBoxContainer" parent="."]
+[node name="Spacer" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(3, 0)
 layout_mode = 2
-
-[node name="MoveUp" type="Button" parent="Move"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-size_flags_vertical = 3
-text = "Up
-"
-
-[node name="MoveDown" type="Button" parent="Move"]
-custom_minimum_size = Vector2(100, 0)
-layout_mode = 2
-size_flags_vertical = 3
-text = "Down
-"
+color = Color(1, 1, 1, 0)
 
 [connection signal="pressed" from="LoadPet" to="." method="OnLoadButtonPressed"]
+[connection signal="pressed" from="Move/MoveUp" to="." method="OnMoveUpPressed"]
+[connection signal="pressed" from="Move/MoveDown" to="." method="OnMoveDownPressed"]
 [connection signal="focus_exited" from="Name" to="." method="OnTextUnfocused"]
 [connection signal="text_submitted" from="Name" to="." method="OnTextSubmitted"]
 [connection signal="canceled" from="Name/AcceptDialog" to="." method="OnTextCanceled"]
