@@ -37,18 +37,22 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	private void OnTextSubmitted(string submittedName)
 	{
-		if(submittedName != Name)
+		string invalidChars = System.Text.RegularExpressions.Regex.Escape( new string( System.IO.Path.GetInvalidFileNameChars() ) + "." );
+		string invalidRegStr = string.Format( @"([{0}]*\.+$)|([{0}]+)", invalidChars );
+		string sanitizedName = System.Text.RegularExpressions.Regex.Replace(submittedName, invalidRegStr, "" );
+
+		if(sanitizedName != Name)
 		{
-			if(menuHandler.DoesPetNameExists(submittedName))
+			if(menuHandler.DoesPetNameExists(sanitizedName))
 			{
 				AcceptDialog errorWindow = GetNode<AcceptDialog>("Name/Error");
 				errorWindow.Visible = true;
-				errorWindow.DialogText = "\"" + submittedName + "\" already exists!";
+				errorWindow.DialogText = "\"" + sanitizedName + "\" already exists!";
 				nameEdit.Text = Name;
 			}
 			else
 			{
-				newName = submittedName;
+				newName = sanitizedName;
 				AcceptDialog acceptDialog = GetNode<AcceptDialog>("Name/AcceptDialog");
 				acceptDialog.Visible = true;
 				acceptDialog.DialogText = "Change \"" + Name + "\" to \"" + newName + "\"?";
@@ -66,6 +70,7 @@ public partial class PetSelectionContainer : HBoxContainer
 		DirAccess.RenameAbsolute("user://" + Name + ".res", "user://" + newName + ".res");
 		DirAccess.RenameAbsolute("user://" + Name + "Icon.png", "user://" + newName + "Icon.png");
 		Name = newName;
+		nameEdit.Text = newName;
 		menuHandler.SaveCurrentPetOrder();
 	}
 

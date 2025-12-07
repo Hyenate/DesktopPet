@@ -46,9 +46,13 @@ public partial class Menu : Control
 
 	private void OnLoadRandomPressed()
 	{
-		Random rand = new Random();
-		int choice = rand.Next(petCollection.GetChildCount());
-		LoadSelectedPet(petCollection.GetChild(choice).Name);
+		if(petCollection.GetChildCount() > 0)
+		{
+			Random rand = new Random();
+			int choice = rand.Next(petCollection.GetChildCount());
+			LoadSelectedPet(petCollection.GetChild(choice).Name);
+		}
+
 	}
 
 	private void OnAddPetPressed()

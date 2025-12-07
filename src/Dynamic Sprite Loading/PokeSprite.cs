@@ -6,7 +6,7 @@ using Godot.Collections;
 public partial class PokeSprite : AnimatedSprite2D
 {
 	AnimationRegistry registry = new AnimationRegistry();
-	public static readonly Array<string> animationDirections = new Array<string> {"", "S","SE","E","NE","N","NW","W","SW"};   // Blank direction (for anims with no direction) plus 8 compass directions
+	public static readonly Array<string> animationDirections = new Array<string> {"S","SE","E","NE","N","NW","W","SW"};   // 8 compass directions
 
 	public void LoadSpriteFiles(string spriteFolder)
 	{
@@ -27,7 +27,7 @@ public partial class PokeSprite : AnimatedSprite2D
 		{
 			var info = entry.Value;
 			string sheetPath = spriteFolder + info.SheetName + ".png";
-			BuildDirectionAnimationFromSpriteSheet(info.InternalName, sheetPath, info.FrameSize, info.HasDirections);
+			BuildAnimationFromSpriteSheet(info.InternalName, sheetPath, info.FrameSize, info.FrameDurations);
 		}
 
 		GD.Print("All animations loaded successfully!");
@@ -35,9 +35,7 @@ public partial class PokeSprite : AnimatedSprite2D
 
 
 	/// Loads a sprite sheet and slices it into animation frames.
-	/// If the AnimationInfo.HasDirections = 0 (false), it will only load a single row, and append "" to the animation name
-	/// If the AnimationInfo.HasDirections = 1 (true), it will load multiple rows, up to 8, each appending a direction from animationDirections[y + 1]
-	private void BuildDirectionAnimationFromSpriteSheet(string animationName, string spriteSheetPath, Vector2I FrameSize, int hasDirections)
+	private void BuildAnimationFromSpriteSheet(string animationName, string spriteSheetPath, Vector2I FrameSize, int[] FrameDurations)
 	{
 		//GD.Print("Animation Name: " + animationName);
 		Image image = new Image();
@@ -47,7 +45,7 @@ public partial class PokeSprite : AnimatedSprite2D
 		texture.SetImage(image);		
 		if (texture == null)
 		{
-			GD.PrintErr($"[PokeSprite.cs: BuildDirectionAnimationFromSpriteSheet] Could not load sprite sheet: {spriteSheetPath}");
+			GD.PrintErr($"[PokeSprite.cs: BuildAnimationFromSpriteSheet] Could not load sprite sheet: {spriteSheetPath}");
 			return;
 		}
 
@@ -65,19 +63,32 @@ public partial class PokeSprite : AnimatedSprite2D
 		
 		for (int y = 0; y < rows; y++)
 		{
-			string finalAnimationName = animationName + animationDirections[y + hasDirections];			
+			string finalAnimationName;
+			if(rows == 1)
+			{
+				finalAnimationName = animationName;			
+			}
+			else
+			{
+				finalAnimationName = animationName + animationDirections[y];
+			}
 			SpriteFrames.AddAnimation(finalAnimationName);
 			SpriteFrames.SetAnimationLoop(finalAnimationName, true);
-			//GD.Print("Final Animation Name: " + finalAnimationName);
 
-			if (animationName.Contains("Spin"))
+			// Imported PMD anims are natively 60 fps, but can be distracting outside of their intended gameplay
+			// Some timings have been adjusted to mitigate this issue
+			SpriteFrames.SetAnimationSpeed(finalAnimationName, 30.0);
+			float speedMultiplier = 1.0f;
+			if (animationName == "Hop" || animationName == "Spin")
 			{
-				SpriteFrames.SetAnimationSpeed(finalAnimationName, 8.0);
+				speedMultiplier = 0.75f;
 			}
-			else if (animationName.Equals("Sleep"))
+			else if(animationName == "Sleep")
 			{
-				SpriteFrames.SetAnimationSpeed(finalAnimationName, 1.5);
+				speedMultiplier = 2.0f;
 			}
+
+			//GD.Print("Final Animation Name: " + finalAnimationName);
 
 			for (int x = 0; x < columns; x++)
 			{
@@ -89,7 +100,7 @@ public partial class PokeSprite : AnimatedSprite2D
 					Region = region
 				};
 				
-				SpriteFrames.AddFrame(finalAnimationName, frameTexture);
+				SpriteFrames.AddFrame(finalAnimationName, frameTexture, FrameDurations[x] / speedMultiplier);
 			}
 		}
 	}

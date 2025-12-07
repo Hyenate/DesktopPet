@@ -12,15 +12,16 @@ public partial class AnimationRegistry : Node
 	{
 		public string SheetName { get; set; }     // This must match a png file in the res://sprite/ folder
 		public string InternalName { get; set; }  // This name must match the name in the AnimData.xml
-		public int HasDirections { get; set; }    // Functionally a bool, but having a directionless sprite set direction = 0 is useful in loading sprites
 		public Vector2I FrameSize { get; set; }   // This will be loaded automatically
+		public int[] FrameDurations { get; set; } // How long to hold each frame (1 = 1/60th of a second)
 
-		public AnimationInfo(string sheetName, string internalName, int hasDirections, Vector2I frameSize)
+		public AnimationInfo(string sheetName, string internalName, Vector2I frameSize, int[] frameDurations)
 		{
 			SheetName = sheetName;
 			InternalName = internalName;
-			HasDirections = hasDirections;
 			FrameSize = frameSize;
+			FrameDurations = new int[frameDurations.Length];
+			System.Array.Copy(frameDurations, FrameDurations, frameDurations.Length);
 		}
 	}
 
@@ -42,19 +43,19 @@ public partial class AnimationRegistry : Node
 		}
 		
 		// Populate the Registry
-		AddAnimation("Attack-Anim", "Attack", 1, pullFrameSize("Attack"));
-		AddAnimation("Charge-Anim", "Charge", 1, pullFrameSize("Charge"));
-		AddAnimation("Hop-Anim",    "Hop",    1, pullFrameSize("Hop"));
-		AddAnimation("Hurt-Anim",   "Hurt",   1, pullFrameSize("Hurt"));
-		AddAnimation("Idle-Anim",   "Idle",   1, pullFrameSize("Idle"));
-		AddAnimation("Rotate-Anim", "Spin",   1, pullFrameSize("Rotate"));
-		AddAnimation("Sleep-Anim",  "Sleep",  0, pullFrameSize("Sleep"));
-		AddAnimation("Swing-Anim",  "Swing",  1, pullFrameSize("Swing"));
-		AddAnimation("Walk-Anim",   "Walk",   1, pullFrameSize("Walk"));
+		AddAnimation("Attack-Anim", "Attack", PullFrameSize("Attack"), PullFrameDurations("Attack"));
+		AddAnimation("Charge-Anim", "Charge", PullFrameSize("Charge"), PullFrameDurations("Charge"));
+		AddAnimation("Hop-Anim",    "Hop",    PullFrameSize("Hop"), PullFrameDurations("Hop"));
+		AddAnimation("Hurt-Anim",   "Hurt",   PullFrameSize("Hurt"), PullFrameDurations("Hurt"));
+		AddAnimation("Idle-Anim",   "Idle",   PullFrameSize("Idle"), PullFrameDurations("Idle"));
+		AddAnimation("Rotate-Anim", "Spin",   PullFrameSize("Rotate"), PullFrameDurations("Rotate"));
+		AddAnimation("Sleep-Anim",  "Sleep",  PullFrameSize("Sleep"), PullFrameDurations("Sleep"));
+		AddAnimation("Swing-Anim",  "Swing",  PullFrameSize("Swing"), PullFrameDurations("Swing"));
+		AddAnimation("Walk-Anim",   "Walk",   PullFrameSize("Walk"), PullFrameDurations("Walk"));
 	}
 	
 	
-	public Vector2I pullFrameSize(string animName)
+	public Vector2I PullFrameSize(string animName)
 	{
 		XElement animElem = doc.Descendants("Anim").FirstOrDefault(a => (string)a.Element("Name") == animName);
 		
@@ -66,8 +67,21 @@ public partial class AnimationRegistry : Node
 		return new Vector2I((int)animElem.Element("FrameWidth"), (int)animElem.Element("FrameHeight"));
 	}
 
-	public void AddAnimation(string sheetName, string internalName, int hasDirections, Vector2I frameSize)
+	public int[] PullFrameDurations(string animName)
 	{
-		Animations[internalName] = new AnimationInfo(sheetName, internalName, hasDirections, frameSize);
+		XElement animElem = doc.Descendants("Anim").FirstOrDefault(a => (string)a.Element("Name") == animName);
+		
+		if (animElem == null)
+		{
+			GD.PrintErr($"Animation '{animName}' not found in {animDataPath}");
+			return null;
+		}
+
+		return animElem.Descendants("Durations").Elements("Duration").Select(element => (int)element).ToArray();
+	}
+
+	public void AddAnimation(string sheetName, string internalName, Vector2I frameSize, int[] frameDurations)
+	{
+		Animations[internalName] = new AnimationInfo(sheetName, internalName, frameSize, frameDurations);
 	}
 }
