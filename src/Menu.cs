@@ -14,7 +14,7 @@ public partial class Menu : Control
 		// Hide incompatible modes
 		if(OS.GetName() != "Windows")
 		{
-			GetNode<HBoxContainer>("VBoxContainer/Top Bar").Visible = false;
+			GetNode<ColorRect>("VBoxContainer/Top Bar").Visible = false;
 		}
 
 		GetWindow().FilesDropped += AddPets;
@@ -82,7 +82,13 @@ public partial class Menu : Control
 				PackedScene packedScene = new PackedScene();
 				packedScene.Pack(petSprites);
 				ResourceSaver.Save(packedScene, "user://Pet" + newestIndex + ".res", ResourceSaver.SaverFlags.Compress);
-				petSprites.SpriteFrames.GetFrameTexture("WalkSE", 0).GetImage().SavePng("user://Pet" + newestIndex + "Icon.png");
+
+				//petSprites.SpriteFrames.GetFrameTexture("WalkSE", 0).GetImage().BlitRect().SavePng("user://Pet" + newestIndex + "Icon.png");
+				Image preview = petSprites.SpriteFrames.GetFrameTexture("WalkSE", 0).GetImage();
+				Rect2I croppedRect = preview.GetUsedRect();
+				Image croppedPreview = Image.CreateEmpty(croppedRect.Size.X, croppedRect.Size.Y, false, preview.GetFormat());
+				croppedPreview.BlitRect(preview, croppedRect, new Vector2I(0, 0));
+				croppedPreview.SavePng("user://Pet" + newestIndex + "Icon.png");
 				config.SetValue(configSection_Pet, "Pet" + newestIndex, 0);
 
 				PetSelectionContainer petSelection = petSelection_res.Instantiate<PetSelectionContainer>();
@@ -116,22 +122,22 @@ public partial class Menu : Control
 	}
 
 	public void MovePetUp(PetSelectionContainer petSelection)
-    {
+	{
 		if(petSelection.GetIndex() > 0)
-        {
-            petCollection.MoveChild(petSelection, petSelection.GetIndex() - 1);
+		{
+			petCollection.MoveChild(petSelection, petSelection.GetIndex() - 1);
 			SaveCurrentPetOrder();
-        }
-    }
+		}
+	}
 	
 	public void MovePetDown(PetSelectionContainer petSelection)
-    {
-        if(petSelection.GetIndex() < petCollection.GetChildCount() - 1)
-        {
-            petCollection.MoveChild(petSelection, petSelection.GetIndex() + 1);
+	{
+		if(petSelection.GetIndex() < petCollection.GetChildCount() - 1)
+		{
+			petCollection.MoveChild(petSelection, petSelection.GetIndex() + 1);
 			SaveCurrentPetOrder();
-        }
-    }
+		}
+	}
 
 	public void SaveCurrentPetOrder()
 	{

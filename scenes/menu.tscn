@@ -90,7 +90,7 @@ theme = ExtResource("2_vjb58")
 theme_override_colors/font_color = Color(0.59717613, 0.59717613, 0.5971761, 1)
 theme_override_font_sizes/font_size = 30
 text = "Click \"Add Pet\" or
-Drag and drop Sprite folder
+Drag and drop Sprite folder(s)
 onto Window"
 horizontal_alignment = 1
 vertical_alignment = 1

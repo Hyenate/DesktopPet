@@ -12,7 +12,7 @@ public partial class PetSelectionContainer : HBoxContainer
 	public override void _Ready()
 	{
 		menuHandler = GetNode<Menu>("../../../../../../../Menu");
-		icon = GetNode<TextureRect>("LoadPet/HBoxContainer/Icon");
+		icon = GetNode<TextureRect>("LoadPet/HBoxContainer/MarginContainer/Icon");
 		nameEdit = GetNode<LineEdit>("Name");
 		Name = "Pet";
 		newName = "";

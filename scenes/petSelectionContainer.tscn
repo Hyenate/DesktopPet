@@ -31,7 +31,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Icon" type="TextureRect" parent="LoadPet/HBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="LoadPet/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="Icon" type="TextureRect" parent="LoadPet/HBoxContainer/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 texture = ExtResource("2_ojuyx")
