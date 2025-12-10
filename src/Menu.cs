@@ -3,9 +3,11 @@ using System;
 
 public partial class Menu : Control
 {
+	private VBoxContainer menuContainer;
 	private VBoxContainer petCollection;
 	private PackedScene petSelection_res;
 	private ConfigFile config;
+	private static readonly float[] defaultCollisionRadii = [80.0f, 50.0f];
 	private const string configPath = "user://pets.cfg";
 	private const string configSection_Pet = "Pet Name";
 
@@ -18,7 +20,8 @@ public partial class Menu : Control
 		}
 
 		GetWindow().FilesDropped += AddPets;
-		petCollection = GetNode<VBoxContainer>("VBoxContainer/Selection/ScrollContainer/VBoxContainer/Collection");
+		menuContainer = GetNode<VBoxContainer>("VBoxContainer");
+		petCollection = menuContainer.GetNode<VBoxContainer>("Selection/ScrollContainer/VBoxContainer/Collection");
 		petSelection_res = ResourceLoader.Load<PackedScene>("res://scenes/petSelectionContainer.tscn");
 		config = new ConfigFile();
 		Error err = config.Load(configPath);
@@ -40,8 +43,9 @@ public partial class Menu : Control
 
 	public void LoadSelectedPet(string name)
 	{
-		bool useOverlay = GetNode<CheckBox>("VBoxContainer/Top Bar/Windowed Mode/CheckBox").ButtonPressed;
-		GetParent<SceneManager>().LoadPetScene(name, useOverlay);
+		bool useOverlay = menuContainer.GetNode<CheckBox>("Top Bar/Windowed Mode/CheckBox").ButtonPressed;
+		float[] collisionRadii = (float[])config.GetValue(configSection_Pet, name, defaultCollisionRadii);
+		GetParent<SceneManager>().LoadPetScene(name, collisionRadii[0], collisionRadii[1], useOverlay);
 	}
 
 	private void OnLoadRandomPressed()
@@ -57,7 +61,7 @@ public partial class Menu : Control
 
 	private void OnAddPetPressed()
 	{
-		GetNode<FileDialog>("VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add/FileDialog").Visible = true;
+		menuContainer.GetNode<FileDialog>("Bottom Bar/VBoxContainer/RandomOrAdd/Add/FileDialog").Visible = true;
 	}
 
 	private void AddPets(string folder)
@@ -83,13 +87,12 @@ public partial class Menu : Control
 				packedScene.Pack(petSprites);
 				ResourceSaver.Save(packedScene, "user://Pet" + newestIndex + ".res", ResourceSaver.SaverFlags.Compress);
 
-				//petSprites.SpriteFrames.GetFrameTexture("WalkSE", 0).GetImage().BlitRect().SavePng("user://Pet" + newestIndex + "Icon.png");
 				Image preview = petSprites.SpriteFrames.GetFrameTexture("WalkSE", 0).GetImage();
 				Rect2I croppedRect = preview.GetUsedRect();
 				Image croppedPreview = Image.CreateEmpty(croppedRect.Size.X, croppedRect.Size.Y, false, preview.GetFormat());
 				croppedPreview.BlitRect(preview, croppedRect, new Vector2I(0, 0));
 				croppedPreview.SavePng("user://Pet" + newestIndex + "Icon.png");
-				config.SetValue(configSection_Pet, "Pet" + newestIndex, 0);
+				config.SetValue(configSection_Pet, "Pet" + newestIndex, defaultCollisionRadii);
 
 				PetSelectionContainer petSelection = petSelection_res.Instantiate<PetSelectionContainer>();
 				petCollection.AddChild(petSelection);
@@ -103,6 +106,32 @@ public partial class Menu : Control
 		config.Save(configPath);
 	}
 
+	public void LoadPetEditor(string petName)
+	{
+		menuContainer.Visible = false;
+		float[] collisionRadii = (float[])config.GetValue(configSection_Pet, petName, defaultCollisionRadii);
+		PackedScene petEditor_res = ResourceLoader.Load<PackedScene>("res://scenes/petEditor.tscn");
+		PetEditor petEditor = petEditor_res.Instantiate<PetEditor>();
+		AddChild(petEditor);
+		petEditor.InitializePetEditor(petName, collisionRadii[0], collisionRadii[1]);
+	}
+
+	public void SavePetEdits(string petName, AnimatedSprite2D petSprites, float mouseHitboxRadius, float physicsHitboxRadius)
+	{
+		PackedScene packedScene = new PackedScene();
+		packedScene.Pack(petSprites);
+		ResourceSaver.Save(packedScene, "user://" + petName + ".res", ResourceSaver.SaverFlags.Compress);
+
+		float[] hitboxRadii = [mouseHitboxRadius, physicsHitboxRadius];
+		config.SetValue(configSection_Pet, petName, hitboxRadii);
+		config.Save(configPath);
+	}
+
+	public void SubMenuExited()
+	{
+		menuContainer.Visible = true;
+	}
+
 	public bool DoesPetNameExists(string testName)
 	{
 		foreach(string name in config.GetSectionKeys(configSection_Pet))
@@ -113,6 +142,13 @@ public partial class Menu : Control
 			}
 		}
 		return false;
+	}
+
+	public void ModifyPetNameInConfig(string newPetName, string oldPetName)
+	{
+		config.SetValue(configSection_Pet, newPetName, config.GetValue(configSection_Pet, oldPetName));
+		config.EraseSectionKey(configSection_Pet, oldPetName);
+		SaveCurrentPetOrder();
 	}
 
 	public void RemovePetFromConfig(string petName)
@@ -141,11 +177,12 @@ public partial class Menu : Control
 
 	public void SaveCurrentPetOrder()
 	{
-		config.Clear();
+		ConfigFile newConfigOrder = new ConfigFile();
 		foreach(Node petContainer in petCollection.GetChildren())
 		{
-			config.SetValue(configSection_Pet, petContainer.Name, 0);
+			newConfigOrder.SetValue(configSection_Pet, petContainer.Name, config.GetValue(configSection_Pet, petContainer.Name));
 		}
+		config = newConfigOrder;
 		config.Save(configPath);
 	}
 }

@@ -37,7 +37,7 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	private void OnTextSubmitted(string submittedName)
 	{
-		string invalidChars = System.Text.RegularExpressions.Regex.Escape( new string( System.IO.Path.GetInvalidFileNameChars() ) + "." );
+		string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()) + ".");
 		string invalidRegStr = string.Format( @"([{0}]*\.+$)|([{0}]+)", invalidChars );
 		string sanitizedName = System.Text.RegularExpressions.Regex.Replace(submittedName, invalidRegStr, "" );
 
@@ -69,14 +69,20 @@ public partial class PetSelectionContainer : HBoxContainer
 	{
 		DirAccess.RenameAbsolute("user://" + Name + ".res", "user://" + newName + ".res");
 		DirAccess.RenameAbsolute("user://" + Name + "Icon.png", "user://" + newName + "Icon.png");
+		string oldName = Name;
 		Name = newName;
 		nameEdit.Text = newName;
-		menuHandler.SaveCurrentPetOrder();
+		menuHandler.ModifyPetNameInConfig(newName, oldName);
 	}
 
 	private void OnTextCanceled()
 	{
 		nameEdit.Text = Name;
+	}
+
+	private void OnEditPressed()
+	{
+		menuHandler.LoadPetEditor(Name);
 	}
 
 	private void OnDeletePressed()

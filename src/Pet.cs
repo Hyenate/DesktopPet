@@ -55,7 +55,7 @@ public partial class Pet : CharacterBody2D
         initialized = false;
     }
 
-	public void InitializePet(AnimatedSprite2D petSprites)
+	public void InitializePet(AnimatedSprite2D petSprites, float dragRadius, float physicsRadius)
     {
         foreach (var weight in Weights.Values.ToList())
 		{
@@ -67,6 +67,8 @@ public partial class Pet : CharacterBody2D
 		anims.Play("HopS");
 		timer = GetNode<Timer>("Timer");
 		timer.Start();
+
+		((CircleShape2D)GetNode<CollisionShape2D>("CollisionShape2D").Shape).Radius = physicsRadius;
 		rand = new Random();
 		Position = GetViewportRect().Size / 2;
 		Velocity = InitialVelocity;		// Initial Upwards Velocity
@@ -76,6 +78,7 @@ public partial class Pet : CharacterBody2D
 		throwableBehavior.OnDragStarted += OnDragStarted;
 		throwableBehavior.OnDragStopped += OnDragStopped;
 		throwableBehavior.OnThrown += OnThrown;
+		throwableBehavior.DragRadius = dragRadius;
 
 		initialized = true;
     }

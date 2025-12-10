@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://rv16o2372jex" path="res://assets/random.png" id="4_mhnvy"]
 [ext_resource type="StyleBox" uid="uid://fs4mycvepp6c" path="res://assets/Themes/ButtonStyle_Hover.tres" id="5_70i5f"]
 [ext_resource type="StyleBox" uid="uid://cxa7idpn52a1j" path="res://assets/Themes/ButtonStyle_Normal.tres" id="6_mj5lg"]
-[ext_resource type="StyleBox" uid="uid://d354wvfor01l0" path="res://assets/Themes/LineEditStyle_Normals.tres" id="7_ufwb2"]
+[ext_resource type="StyleBox" uid="uid://d354wvfor01l0" path="res://assets/Themes/LineEditStyle_Normal.tres" id="7_ufwb2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxicj"]
 content_margin_left = 4.0
@@ -77,7 +77,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.14044744, 0.14044744, 0.1404475, 1)
+color = Color(0.17711997, 0.28302756, 0.10876305, 1)
 
 [node name="Tip" type="Label" parent="ColorRect"]
 layout_mode = 1
@@ -108,13 +108,18 @@ theme = SubResource("Theme_6cdou")
 [node name="Top Bar" type="ColorRect" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-color = Color(0.41215247, 0.41215247, 0.41215247, 1)
+color = Color(0.36591518, 0.51579094, 0.41639453, 1)
 
 [node name="Windowed Mode" type="HBoxContainer" parent="VBoxContainer/Top Bar"]
-layout_mode = 0
-offset_top = 4.0
-offset_right = 1132.0
-offset_bottom = 33.0
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -14.5
+offset_bottom = 14.5
+grow_horizontal = 2
+grow_vertical = 2
 alignment = 2
 
 [node name="Label" type="Label" parent="VBoxContainer/Top Bar/Windowed Mode"]
@@ -124,6 +129,10 @@ text = "Windowed Mode"
 [node name="CheckBox" type="CheckBox" parent="VBoxContainer/Top Bar/Windowed Mode"]
 layout_mode = 2
 tooltip_text = "Use a transparent window instead of the default \"Fullscreen\" mode."
+
+[node name="Spacer" type="Control" parent="VBoxContainer/Top Bar/Windowed Mode"]
+custom_minimum_size = Vector2(5, 0)
+layout_mode = 2
 
 [node name="Selection" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -138,20 +147,18 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Spacer" type="ColorRect" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
+[node name="Spacer" type="Control" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
-color = Color(1, 1, 1, 0)
 
 [node name="Collection" type="VBoxContainer" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Spacer2" type="ColorRect" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
+[node name="Spacer2" type="Control" parent="VBoxContainer/Selection/ScrollContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
-color = Color(1, 1, 1, 0)
 
 [node name="Bottom Bar" type="MarginContainer" parent="VBoxContainer"]
 layout_mode = 2

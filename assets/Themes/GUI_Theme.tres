@@ -1,10 +1,15 @@
-[gd_resource type="Theme" load_steps=8 format=3 uid="uid://bwrg80lf02vk"]
+[gd_resource type="Theme" load_steps=11 format=3 uid="uid://bwrg80lf02vk"]
 
+[ext_resource type="StyleBox" uid="uid://cr573e1u1tyqy" path="res://assets/Themes/EmbeddedWindow_Border.tres" id="1_fw5np"]
 [ext_resource type="FontFile" uid="uid://bf2nhmf7rgjeo" path="res://assets/JockeyOne-Regular.ttf" id="1_m67up"]
 [ext_resource type="StyleBox" uid="uid://fs4mycvepp6c" path="res://assets/Themes/ButtonStyle_Hover.tres" id="2_fw5np"]
 [ext_resource type="StyleBox" uid="uid://cxa7idpn52a1j" path="res://assets/Themes/ButtonStyle_Normal.tres" id="3_uk41o"]
 [ext_resource type="StyleBox" uid="uid://blcvtq4nr6fmg" path="res://assets/Themes/ButtonStyle_Pressed.tres" id="4_swdn3"]
-[ext_resource type="StyleBox" uid="uid://d354wvfor01l0" path="res://assets/Themes/LineEditStyle_Normals.tres" id="5_t5r24"]
+[ext_resource type="StyleBox" uid="uid://c8uunswgfqarr" path="res://assets/Themes/CheckButtonStyle_Normal.tres" id="6_uk41o"]
+[ext_resource type="StyleBox" uid="uid://d354wvfor01l0" path="res://assets/Themes/LineEditStyle_Normal.tres" id="7_uk41o"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uk41o"]
+bg_color = Color(0.16924527, 0.1692453, 0.16924527, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxicj"]
 content_margin_left = 4.0
@@ -30,11 +35,15 @@ expand_margin_bottom = 2.0
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t2iew"]
 
 [resource]
+AcceptDialog/styles/embedded_border = ExtResource("1_fw5np")
+AcceptDialog/styles/panel = SubResource("StyleBoxFlat_uk41o")
 Button/font_sizes/font_size = 20
 Button/fonts/font = ExtResource("1_m67up")
 Button/styles/hover = ExtResource("2_fw5np")
 Button/styles/normal = ExtResource("3_uk41o")
 Button/styles/pressed = ExtResource("4_swdn3")
+CheckButton/styles/normal = ExtResource("6_uk41o")
+CheckButton/styles/pressed = ExtResource("6_uk41o")
 Label/colors/font_color = Color(1, 1, 1, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 1)
 Label/colors/font_shadow_color = Color(0, 0, 0, 0)
@@ -49,9 +58,10 @@ Label/styles/focus = SubResource("StyleBoxFlat_lxicj")
 Label/styles/normal = SubResource("StyleBoxEmpty_t2iew")
 LineEdit/font_sizes/font_size = 26
 LineEdit/fonts/font = ExtResource("1_m67up")
-LineEdit/styles/normal = ExtResource("5_t5r24")
+LineEdit/styles/normal = ExtResource("7_uk41o")
 MarginContainer/constants/margin_bottom = 5
 MarginContainer/constants/margin_left = 10
 MarginContainer/constants/margin_right = 10
 MarginContainer/constants/margin_top = 5
+SpinBoxInnerLineEdit/base_type = &"LineEdit"
 Tree/fonts/font = ExtResource("1_m67up")

@@ -3,7 +3,7 @@ using System;
 
 public partial class SceneManager : Node
 {
-	public void LoadPetScene(string petName, bool useOverlay)
+	public void LoadPetScene(string petName, float dragRadius, float physicsRadius, bool useOverlay)
 	{
 		foreach(Node child in GetChildren())
 		{
@@ -20,7 +20,7 @@ public partial class SceneManager : Node
 		AddChild(initializeOS);
 		initializeOS.Call("load_OS_settings", useOverlay, pet);
 
-		PackedScene petSprites_res = ResourceLoader.Load<PackedScene>("user://" + petName + ".res");
-		pet.InitializePet(petSprites_res.Instantiate<AnimatedSprite2D>());
+		PackedScene petSprites_res = ResourceLoader.Load<PackedScene>("user://" + petName + ".res", "", ResourceLoader.CacheMode.Ignore);
+		pet.InitializePet(petSprites_res.Instantiate<AnimatedSprite2D>(), dragRadius, physicsRadius);
 	}
 }

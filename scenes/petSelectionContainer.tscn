@@ -55,18 +55,34 @@ vertical_alignment = 1
 layout_mode = 2
 
 [node name="MoveUp" type="Button" parent="Move"]
-custom_minimum_size = Vector2(60, 0)
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 size_flags_vertical = 3
-icon = ExtResource("8_trd3q")
 icon_alignment = 1
 
+[node name="TextureRect" type="TextureRect" parent="Move/MoveUp"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_trd3q")
+
 [node name="MoveDown" type="Button" parent="Move"]
-custom_minimum_size = Vector2(60, 0)
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 size_flags_vertical = 3
-icon = ExtResource("9_l3atj")
 icon_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Move/MoveDown"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("9_l3atj")
 
 [node name="Name" type="LineEdit" parent="."]
 layout_mode = 2
@@ -86,6 +102,12 @@ title = "Error!"
 initial_position = 1
 size = Vector2i(200, 100)
 
+[node name="Edit" type="Button" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "EDIT
+"
+
 [node name="Delete" type="Button" parent="."]
 custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
@@ -99,10 +121,9 @@ initial_position = 1
 size = Vector2i(200, 100)
 ok_button_text = "Confirm"
 
-[node name="Spacer" type="ColorRect" parent="."]
+[node name="Spacer" type="Control" parent="."]
 custom_minimum_size = Vector2(3, 0)
 layout_mode = 2
-color = Color(1, 1, 1, 0)
 
 [connection signal="pressed" from="LoadPet" to="." method="OnLoadButtonPressed"]
 [connection signal="pressed" from="Move/MoveUp" to="." method="OnMoveUpPressed"]
@@ -111,5 +132,6 @@ color = Color(1, 1, 1, 0)
 [connection signal="text_submitted" from="Name" to="." method="OnTextSubmitted"]
 [connection signal="canceled" from="Name/AcceptDialog" to="." method="OnTextCanceled"]
 [connection signal="confirmed" from="Name/AcceptDialog" to="." method="OnTextConfirmed"]
+[connection signal="pressed" from="Edit" to="." method="OnEditPressed"]
 [connection signal="pressed" from="Delete" to="." method="OnDeletePressed"]
 [connection signal="confirmed" from="Delete/AcceptDialog" to="." method="OnDeleteConfirmed"]
