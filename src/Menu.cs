@@ -87,7 +87,7 @@ public partial class Menu : Control
 				packedScene.Pack(petSprites);
 				ResourceSaver.Save(packedScene, "user://Pet" + newestIndex + ".res", ResourceSaver.SaverFlags.Compress);
 
-				Image preview = petSprites.SpriteFrames.GetFrameTexture("WalkSE", 0).GetImage();
+				Image preview = petSprites.SpriteFrames.GetFrameTexture("IdleSE", 0).GetImage();
 				Rect2I croppedRect = preview.GetUsedRect();
 				Image croppedPreview = Image.CreateEmpty(croppedRect.Size.X, croppedRect.Size.Y, false, preview.GetFormat());
 				croppedPreview.BlitRect(preview, croppedRect, new Vector2I(0, 0));

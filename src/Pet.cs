@@ -71,7 +71,7 @@ public partial class Pet : CharacterBody2D
 		((CircleShape2D)GetNode<CollisionShape2D>("CollisionShape2D").Shape).Radius = physicsRadius;
 		rand = new Random();
 		Position = GetViewportRect().Size / 2;
-		Velocity = InitialVelocity;		// Initial Upwards Velocity
+		Velocity = InitialVelocity;
 		GetWindow().MousePassthrough = false;
 
 		throwableBehavior = GetNode<ThrowableBehavior>("ThrowableBehavior");
@@ -209,7 +209,8 @@ public partial class Pet : CharacterBody2D
 		}
 		else if (state == State.Spin)
 		{
-			anims.Play("Spin" + dir.ToString());
+			anims.Play("Spin");
+			anims.Frame = (int)dir;
 		}
 		else if (state == State.Hop)
 		{

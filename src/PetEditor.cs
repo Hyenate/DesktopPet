@@ -50,6 +50,40 @@ public partial class PetEditor : MarginContainer
 		scaleSetting.Value = mainPetSprites.Scale.X;
 		OnScaleChanged(mainPetSprites.Scale.X);
 
+		Node animationSelection = GetNode("ScrollContainer/VBoxContainer/AnimationSelect/ScrollContainer/HBoxContainer");
+		PackedScene animCard_res = ResourceLoader.Load<PackedScene>("res://scenes/animCard.tscn");
+		string[] animNames = mainPetSprites.SpriteFrames.GetAnimationNames();
+
+		// Subtract 1 to ignore empty default animation
+		for(int i = 0; i < animNames.Length - 1; i++)
+		{
+			AnimCard animCard = animCard_res.Instantiate<AnimCard>();
+			
+			// Multi-Directional animation detected
+			if(animNames[i].EndsWith('E'))
+			{
+				// Oct-Directional animation detected (Next direction in alphabetical order of Oct)
+				if(animNames[i + 1].EndsWith('N'))
+				{
+					animCard.SetAnimCard(animNames[i].Remove(animNames[i].Length - 1), petSprites_res, "SE");
+					i += 7;
+				}
+				// Bi-Directional animation detected
+				else
+				{
+					animCard.SetAnimCard(animNames[i].Remove(animNames[i].Length - 1), petSprites_res, "E");
+					i++;
+				}
+			}
+			// Mono-Directional animation
+			else
+			{
+				animCard.SetAnimCard(animNames[i], petSprites_res, "");
+			}
+			animationSelection.AddChild(animCard);
+		}
+
+
 		Visible = true;
 	}
 

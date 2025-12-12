@@ -13,7 +13,7 @@ public partial class PetSelectionContainer : HBoxContainer
 	{
 		menuHandler = GetNode<Menu>("../../../../../../../Menu");
 		icon = GetNode<TextureRect>("LoadPet/HBoxContainer/MarginContainer/Icon");
-		nameEdit = GetNode<LineEdit>("Name");
+		nameEdit = GetNode<LineEdit>("NameTag/Name");
 		Name = "Pet";
 		newName = "";
 	}
@@ -45,7 +45,7 @@ public partial class PetSelectionContainer : HBoxContainer
 		{
 			if(menuHandler.DoesPetNameExists(sanitizedName))
 			{
-				AcceptDialog errorWindow = GetNode<AcceptDialog>("Name/Error");
+				AcceptDialog errorWindow = GetNode<AcceptDialog>("NameTag/Name/Error");
 				errorWindow.Visible = true;
 				errorWindow.DialogText = "\"" + sanitizedName + "\" already exists!";
 				nameEdit.Text = Name;
@@ -53,7 +53,7 @@ public partial class PetSelectionContainer : HBoxContainer
 			else
 			{
 				newName = sanitizedName;
-				AcceptDialog acceptDialog = GetNode<AcceptDialog>("Name/AcceptDialog");
+				AcceptDialog acceptDialog = GetNode<AcceptDialog>("NameTag/Name/AcceptDialog");
 				acceptDialog.Visible = true;
 				acceptDialog.DialogText = "Change \"" + Name + "\" to \"" + newName + "\"?";
 			}

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://d0jny2obrh31e"]
+[gd_scene load_steps=9 format=3 uid="uid://d0jny2obrh31e"]
 
 [ext_resource type="Script" uid="uid://bntsq7sjkjuce" path="res://src/PetSelectionContainer.cs" id="1_fjb7i"]
 [ext_resource type="Theme" uid="uid://bwrg80lf02vk" path="res://assets/Themes/GUI_Theme.tres" id="1_xn6bf"]
@@ -6,6 +6,12 @@
 [ext_resource type="Texture2D" uid="uid://korpkf1u3uux" path="res://assets/trash.png" id="6_dqvrd"]
 [ext_resource type="Texture2D" uid="uid://n3i3dpukdo6y" path="res://assets/ArrowUp.png" id="8_trd3q"]
 [ext_resource type="Texture2D" uid="uid://djj6o7rck0lng" path="res://assets/ArrowDown.png" id="9_l3atj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dqvrd"]
+content_margin_left = 10.0
+
+[sub_resource type="Theme" id="Theme_gx6p6"]
+LineEdit/styles/normal = SubResource("StyleBoxEmpty_dqvrd")
 
 [node name="PetSelectionContainer" type="HBoxContainer"]
 anchors_preset = 10
@@ -84,19 +90,41 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("9_l3atj")
 
-[node name="Name" type="LineEdit" parent="."]
+[node name="NameTag" type="MarginContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = " Pet"
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 5
 
-[node name="AcceptDialog" type="AcceptDialog" parent="Name"]
+[node name="NameBG" type="LineEdit" parent="NameTag"]
+layout_mode = 2
+context_menu_enabled = false
+emoji_menu_enabled = false
+virtual_keyboard_enabled = false
+virtual_keyboard_show_on_focus = false
+shortcut_keys_enabled = false
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+
+[node name="Name" type="LineEdit" parent="NameTag"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = SubResource("Theme_gx6p6")
+placeholder_text = "Pet"
+caret_blink = true
+
+[node name="AcceptDialog" type="AcceptDialog" parent="NameTag/Name"]
 oversampling_override = 1.0
 title = "Change Name?"
 initial_position = 1
 size = Vector2i(200, 100)
 dialog_autowrap = true
 
-[node name="Error" type="AcceptDialog" parent="Name"]
+[node name="Error" type="AcceptDialog" parent="NameTag/Name"]
 oversampling_override = 1.0
 title = "Error!"
 initial_position = 1
@@ -128,10 +156,10 @@ layout_mode = 2
 [connection signal="pressed" from="LoadPet" to="." method="OnLoadButtonPressed"]
 [connection signal="pressed" from="Move/MoveUp" to="." method="OnMoveUpPressed"]
 [connection signal="pressed" from="Move/MoveDown" to="." method="OnMoveDownPressed"]
-[connection signal="focus_exited" from="Name" to="." method="OnTextUnfocused"]
-[connection signal="text_submitted" from="Name" to="." method="OnTextSubmitted"]
-[connection signal="canceled" from="Name/AcceptDialog" to="." method="OnTextCanceled"]
-[connection signal="confirmed" from="Name/AcceptDialog" to="." method="OnTextConfirmed"]
+[connection signal="focus_exited" from="NameTag/Name" to="." method="OnTextUnfocused"]
+[connection signal="text_submitted" from="NameTag/Name" to="." method="OnTextSubmitted"]
+[connection signal="canceled" from="NameTag/Name/AcceptDialog" to="." method="OnTextCanceled"]
+[connection signal="confirmed" from="NameTag/Name/AcceptDialog" to="." method="OnTextConfirmed"]
 [connection signal="pressed" from="Edit" to="." method="OnEditPressed"]
 [connection signal="pressed" from="Delete" to="." method="OnDeletePressed"]
 [connection signal="confirmed" from="Delete/AcceptDialog" to="." method="OnDeleteConfirmed"]

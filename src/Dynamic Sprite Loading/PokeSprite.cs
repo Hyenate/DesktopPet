@@ -5,8 +5,9 @@ using Godot.Collections;
 /// Class which extends AnimatedSprite2D, which automatically loads from sprite sheet data and AnimData.xml
 public partial class PokeSprite : AnimatedSprite2D
 {
-	AnimationRegistry registry = new AnimationRegistry();
 	public static readonly Array<string> animationDirections = new Array<string> {"S","SE","E","NE","N","NW","W","SW"};   // 8 compass directions
+	private AnimationRegistry registry = new AnimationRegistry();
+	private const float AnimDefaultFPS = 30.0f;
 
 	public void LoadSpriteFiles(string spriteFolder)
 	{
@@ -53,10 +54,11 @@ public partial class PokeSprite : AnimatedSprite2D
 		int columns = texture.GetWidth() / FrameSize.X;
 		int rows = texture.GetHeight() / FrameSize.Y;
 
-		// Drop final frame on "Rotate" for clean loop
-		if (animationName.Contains("Spin"))
+		// Remove redundant "Rotate" frames if they exist
+		if (animationName == "Spin")
 		{
-			columns--;
+			columns = 8;
+			rows = 1;
 		}
 		
 		//GD.Print("Loaded " + columns + " columns and " + rows + " rows from sprite sheet: " + spriteSheetPath);
@@ -77,15 +79,18 @@ public partial class PokeSprite : AnimatedSprite2D
 
 			// Imported PMD anims are natively 60 fps, but can be distracting outside of their intended gameplay
 			// Some timings have been adjusted to mitigate this issue
-			SpriteFrames.SetAnimationSpeed(finalAnimationName, 30.0);
-			float speedMultiplier = 1.0f;
+			SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS);
 			if (animationName == "Hop" || animationName == "Spin")
 			{
-				speedMultiplier = 0.75f;
+				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS * 0.75f);
 			}
 			else if(animationName == "Sleep")
 			{
-				speedMultiplier = 2.0f;
+				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS * 2);
+			}
+			else
+			{
+				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS);
 			}
 
 			//GD.Print("Final Animation Name: " + finalAnimationName);
@@ -100,7 +105,26 @@ public partial class PokeSprite : AnimatedSprite2D
 					Region = region
 				};
 				
-				SpriteFrames.AddFrame(finalAnimationName, frameTexture, FrameDurations[x] / speedMultiplier);
+				SpriteFrames.AddFrame(finalAnimationName, frameTexture, FrameDurations[x]);
+			}
+		}
+
+		// Walk animation row count compatibility
+		if(animationName == "Walk")
+		{
+			if(rows == 8)
+			{
+				SpriteFrames.RemoveAnimation("WalkS");
+				SpriteFrames.RemoveAnimation("WalkSE");
+				SpriteFrames.RemoveAnimation("WalkNE");
+				SpriteFrames.RemoveAnimation("WalkN");
+				SpriteFrames.RemoveAnimation("WalkNW");
+				SpriteFrames.RemoveAnimation("WalkSW");
+			}
+			else if(rows == 2)
+			{
+				SpriteFrames.RenameAnimation("WalkS", "WalkE");
+				SpriteFrames.RenameAnimation("WalkSE", "WalkW");
 			}
 		}
 	}
