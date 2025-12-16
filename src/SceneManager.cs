@@ -1,9 +1,10 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
 public partial class SceneManager : Node
 {
-	public void LoadPetScene(string petName, float dragRadius, float physicsRadius, bool useOverlay)
+	public void LoadPetScene(string petName, float dragRadius, float physicsRadius, Dictionary<string, int> weights, bool useOverlay)
 	{
 		foreach(Node child in GetChildren())
 		{
@@ -21,6 +22,6 @@ public partial class SceneManager : Node
 		initializeOS.Call("load_OS_settings", useOverlay, pet);
 
 		PackedScene petSprites_res = ResourceLoader.Load<PackedScene>("user://" + petName + ".res", "", ResourceLoader.CacheMode.Ignore);
-		pet.InitializePet(petSprites_res.Instantiate<AnimatedSprite2D>(), dragRadius, physicsRadius);
+		pet.InitializePet(petSprites_res.Instantiate<AnimatedSprite2D>(), dragRadius, physicsRadius, weights);
 	}
 }

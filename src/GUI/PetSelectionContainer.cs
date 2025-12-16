@@ -1,17 +1,15 @@
 using Godot;
-using GodotPlugins.Game;
-using System;
 
 public partial class PetSelectionContainer : HBoxContainer
 {
-	private Menu menuHandler;
+	private SaveMenu menuHandler;
 	private TextureRect icon;
 	private LineEdit nameEdit;
 	private string newName;
 
 	public override void _Ready()
 	{
-		menuHandler = GetNode<Menu>("../../../../../../../Menu");
+		menuHandler = GetNode<SaveMenu>("../../../../../../../Menu");
 		icon = GetNode<TextureRect>("LoadPet/HBoxContainer/MarginContainer/Icon");
 		nameEdit = GetNode<LineEdit>("NameTag/Name");
 		Name = "Pet";
@@ -67,12 +65,10 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	private void OnTextConfirmed()
 	{
-		DirAccess.RenameAbsolute("user://" + Name + ".res", "user://" + newName + ".res");
-		DirAccess.RenameAbsolute("user://" + Name + "Icon.png", "user://" + newName + "Icon.png");
 		string oldName = Name;
 		Name = newName;
 		nameEdit.Text = newName;
-		menuHandler.ModifyPetNameInConfig(newName, oldName);
+		menuHandler.ModifyPetName(oldName, newName);
 	}
 
 	private void OnTextCanceled()
@@ -92,9 +88,7 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	private void OnDeleteConfirmed()
 	{
-		DirAccess.RemoveAbsolute("user://" + Name + ".res");
-		DirAccess.RemoveAbsolute("user://" + Name + "Icon.png");
-		menuHandler.RemovePetFromConfig(Name);
+		menuHandler.DeletePet(Name);
 		QueueFree();
 	}
 

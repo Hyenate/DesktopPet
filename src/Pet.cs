@@ -5,15 +5,6 @@ using System.Linq;
 
 public partial class Pet : CharacterBody2D
 {
-	public enum State
-	{
-		Idle,
-		Walk,
-		Sleep,
-		Spin,
-		Hop,
-	}
-
 	public enum Direction
 	{
 		S,
@@ -26,17 +17,9 @@ public partial class Pet : CharacterBody2D
 		SW
 	}
 
-	public Dictionary<State, int> Weights = new Dictionary<State, int>
-	{
-		{State.Idle, 20},
-		{State.Walk, 40},
-		{State.Sleep, 20},
-		{State.Spin, 5 },
-		{State.Hop, 15}
-	};
-
 	public bool UsingOverlay {get; set;}
 
+	private Dictionary<string, int> Weights;
 	private int weightTotal = 0;
 	private Direction dir = Direction.S;
 	private const float Speed = 300.0f;
@@ -50,20 +33,16 @@ public partial class Pet : CharacterBody2D
 	private const float TerminalVelocity = 2000f;
 	private static readonly Vector2 InitialVelocity = new(0, -400);
 
-    public override void _Ready()
-    {
-        initialized = false;
-    }
+	public override void _Ready()
+	{
+		initialized = false;
+	}
 
-	public void InitializePet(AnimatedSprite2D petSprites, float dragRadius, float physicsRadius)
-    {
-        foreach (var weight in Weights.Values.ToList())
-		{
-			weightTotal += weight;
-		}
-		petSprites.AnimationLooped += OnAnimationLoopEnd;
+	public void InitializePet(AnimatedSprite2D petSprites, float dragRadius, float physicsRadius, Dictionary<string, int> weights)
+	{
 		AddChild(petSprites);
 		anims = petSprites;
+		anims.AnimationFinished += RandomizeState; 	// If animation doesn't loop, immediately reroll upon completion
 		anims.Play("HopS");
 		timer = GetNode<Timer>("Timer");
 		timer.Start();
@@ -80,29 +59,43 @@ public partial class Pet : CharacterBody2D
 		throwableBehavior.OnThrown += OnThrown;
 		throwableBehavior.DragRadius = dragRadius;
 
+		Weights = weights;
+		foreach (var weight in Weights)
+		{
+			if(weight.Value == 0 || GetDirectionCount(weight.Key) == -1)
+			{
+				// Remove unused/nonexistent weights for this pet
+				Weights.Remove(weight.Key);
+			}
+			else
+			{
+				weightTotal += weight.Value;
+			}
+		}
+
 		initialized = true;
-    }
+	}
 
 	public override void _PhysicsProcess(double delta)
 	{
 		if(initialized)
-        {
+		{
 			Velocity = ApplyGravity(Velocity, delta);
 
 			if(!UsingOverlay)
-            {
-            	GetWindow().MousePassthroughPolygon = GetOffsetPolygon();
-            }
+			{
+				GetWindow().MousePassthroughPolygon = GetOffsetPolygon();
+			}
 
 			if (throwableBehavior.ShouldParentHandlePhysics())
 			{
 				ApplyNormalPhysics(delta);
 			}	
 			MoveAndSlide();  
-        }
+		}
 	}
 
-	private Vector2 ApplyGravity(Vector2 velocity, double delta)
+	private static Vector2 ApplyGravity(Vector2 velocity, double delta)
 	{
 		velocity.Y += Gravity * (float)delta;
 		
@@ -134,12 +127,12 @@ public partial class Pet : CharacterBody2D
 	{
 		Vector2 size = anims.SpriteFrames.GetFrameTexture(anims.Animation, anims.Frame).GetSize();
 		Vector2[] offsetPolygon =
-        [
-            (new Vector2(-size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
-            (new Vector2(size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
-            (new Vector2(size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
-            (new Vector2(-size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
-        ];
+		[
+			(new Vector2(-size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
+			(new Vector2(size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
+			(new Vector2(size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
+			(new Vector2(-size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
+		];
 		
 		return offsetPolygon;
 	}
@@ -171,57 +164,71 @@ public partial class Pet : CharacterBody2D
 			velocity.X = 0;
 		}
 	}
-
-	public virtual bool KeepCurrentState()
-    {
-        return false;
-    }
 	
 	public void RandomizeState()
 	{
-		if(KeepCurrentState())
-			return;
-
-		State state = RollForRandomState();
+		string state = RollForRandomState();
 		timer.WaitTime = rand.Next(7) + 3;
+		int dirCount = GetDirectionCount(state);
 
-		if (state == State.Idle)
+		if(dirCount == 1)
 		{
-			dir = (Direction)rand.Next(8);
-			anims.Play("Idle" + dir.ToString());
+			anims.Play(state);
+
+			// Special behavior to maintain starting direction
+			if(state == "Rotate")
+			{
+				anims.Frame = (int)dir;
+			}
 		}
-		else if (state == State.Walk)
+		else if(dirCount == 2)
 		{
 			if (rand.Next(2) == 0)
 			{
 				dir = Direction.E;
-				anims.Play("WalkE");
+				anims.Play(state + 'E');
 			}
 			else
 			{
 				dir = Direction.W;
-				anims.Play("WalkW");
+				anims.Play(state + 'W');
 			}
 		}
-		else if (state == State.Sleep)
+		else if (dirCount == 8)
 		{
-			anims.Play("Sleep");
-		}
-		else if (state == State.Spin)
-		{
-			anims.Play("Spin");
-			anims.Frame = (int)dir;
-		}
-		else if (state == State.Hop)
-		{
-			anims.Play("Hop" + dir.ToString());
+			// Only change direction if anim is not a one off (i.e. loops)
+			if(anims.SpriteFrames.GetAnimationLoop(state + 'S'))
+			{
+				dir = (Direction)rand.Next(8);
+			}
+			anims.Play(state + dir.ToString());
 		}
 	}
 
-	public State RollForRandomState()
+	private int GetDirectionCount(string state)
+	{
+		if(anims.SpriteFrames.HasAnimation(state))
+		{
+			return 1;
+		}
+		else if(!anims.SpriteFrames.HasAnimation(state + 'S') && anims.SpriteFrames.HasAnimation(state + 'E'))
+		{
+			return 2;
+		}
+		else if(anims.SpriteFrames.HasAnimation(state + 'S') && anims.SpriteFrames.HasAnimation(state + 'E'))
+		{
+			return 8;
+		}
+		else
+		{	// Anim does not exist
+			return -1;
+		}
+	}
+
+	public string RollForRandomState()
 	{
 		int num = rand.Next(weightTotal);
-		foreach (var stateKey in Weights.Keys.ToList())
+		foreach (string stateKey in Weights.Keys.ToList())
 		{
 			if (num < Weights[stateKey])
 			{
@@ -232,19 +239,7 @@ public partial class Pet : CharacterBody2D
 				num -= Weights[stateKey];
 			}
 		}
-		return State.Idle;
-	}
-
-	public virtual void OnAnimationLoopEnd()
-	{
-		if(KeepCurrentState())
-			return;
-		
-		//force Hop to end and reroll
-		if(anims.Animation.ToString().Contains("Hop"))
-		{
-			RandomizeState();
-		}    
+		return "";
 	}
 
 	public void OnDragStarted()

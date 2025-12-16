@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://d1sqk05jrg2pv"]
 
-[ext_resource type="Script" uid="uid://b74xvdmolgr2b" path="res://src/Dynamic Sprite Loading/PokeSprite.cs" id="1_xn5ep"]
+[ext_resource type="Script" uid="uid://b74xvdmolgr2b" path="res://src/Dynamic Sprite Loading/AnimationImportBuilder.cs" id="1_xn5ep"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gjj17"]
 resource_local_to_scene = true

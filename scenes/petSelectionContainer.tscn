@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://d0jny2obrh31e"]
 
-[ext_resource type="Script" uid="uid://bntsq7sjkjuce" path="res://src/PetSelectionContainer.cs" id="1_fjb7i"]
+[ext_resource type="Script" uid="uid://bntsq7sjkjuce" path="res://src/GUI/PetSelectionContainer.cs" id="1_fjb7i"]
 [ext_resource type="Theme" uid="uid://bwrg80lf02vk" path="res://assets/Themes/GUI_Theme.tres" id="1_xn6bf"]
 [ext_resource type="Texture2D" uid="uid://c3r6sihl0pm2m" path="res://icon.png" id="2_ojuyx"]
 [ext_resource type="Texture2D" uid="uid://korpkf1u3uux" path="res://assets/trash.png" id="6_dqvrd"]

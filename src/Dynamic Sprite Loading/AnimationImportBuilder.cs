@@ -3,10 +3,10 @@ using System;
 using Godot.Collections;
 
 /// Class which extends AnimatedSprite2D, which automatically loads from sprite sheet data and AnimData.xml
-public partial class PokeSprite : AnimatedSprite2D
+public partial class AnimationImportBuilder : AnimatedSprite2D
 {
 	public static readonly Array<string> animationDirections = new Array<string> {"S","SE","E","NE","N","NW","W","SW"};   // 8 compass directions
-	private AnimationRegistry registry = new AnimationRegistry();
+	public AnimationRegistry registry = new AnimationRegistry();
 	private const float AnimDefaultFPS = 30.0f;
 
 	public void LoadSpriteFiles(string spriteFolder)
@@ -38,6 +38,13 @@ public partial class PokeSprite : AnimatedSprite2D
 	/// Loads a sprite sheet and slices it into animation frames.
 	private void BuildAnimationFromSpriteSheet(string animationName, string spriteSheetPath, Vector2I FrameSize, int[] FrameDurations)
 	{
+		// Blacklisted for PMD compatibility and unlikeliness to be used
+		if(animationName == "Head")
+		{
+			registry.Animations.Remove("Head");
+			return;
+		}
+
 		//GD.Print("Animation Name: " + animationName);
 		Image image = new Image();
 		image.Load(spriteSheetPath);
@@ -46,7 +53,7 @@ public partial class PokeSprite : AnimatedSprite2D
 		texture.SetImage(image);		
 		if (texture == null)
 		{
-			GD.PrintErr($"[PokeSprite.cs: BuildAnimationFromSpriteSheet] Could not load sprite sheet: {spriteSheetPath}");
+			GD.PrintErr($"[AnimationImportBuilder.cs: BuildAnimationFromSpriteSheet] Could not load sprite sheet: {spriteSheetPath}");
 			return;
 		}
 
@@ -55,14 +62,18 @@ public partial class PokeSprite : AnimatedSprite2D
 		int rows = texture.GetHeight() / FrameSize.Y;
 
 		// Remove redundant "Rotate" frames if they exist
-		if (animationName == "Spin")
+		if (animationName == "Rotate")
 		{
 			columns = 8;
 			rows = 1;
 		}
-		
-		//GD.Print("Loaded " + columns + " columns and " + rows + " rows from sprite sheet: " + spriteSheetPath);
-		
+
+		if(rows != 1 && rows != 2 && rows != 8)
+		{
+			GD.PrintErr($"Incompatible row count detected in animation \"{animationName}\": {rows}. Animations must have 1, 2, or 8 rows.");
+			return;
+		}
+	
 		for (int y = 0; y < rows; y++)
 		{
 			string finalAnimationName;
@@ -75,12 +86,21 @@ public partial class PokeSprite : AnimatedSprite2D
 				finalAnimationName = animationName + animationDirections[y];
 			}
 			SpriteFrames.AddAnimation(finalAnimationName);
-			SpriteFrames.SetAnimationLoop(finalAnimationName, true);
+
+			// Default settings on PMD anim import
+			if(animationName == "Hop" || animationName == "Attack")
+			{
+				SpriteFrames.SetAnimationLoop(finalAnimationName, false);
+			}
+			else
+			{
+				SpriteFrames.SetAnimationLoop(finalAnimationName, true);
+			}
 
 			// Imported PMD anims are natively 60 fps, but can be distracting outside of their intended gameplay
 			// Some timings have been adjusted to mitigate this issue
 			SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS);
-			if (animationName == "Hop" || animationName == "Spin")
+			if (animationName == "Hop" || animationName == "Rotate")
 			{
 				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS * 0.75f);
 			}
@@ -92,8 +112,6 @@ public partial class PokeSprite : AnimatedSprite2D
 			{
 				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS);
 			}
-
-			//GD.Print("Final Animation Name: " + finalAnimationName);
 
 			for (int x = 0; x < columns; x++)
 			{
@@ -109,23 +127,20 @@ public partial class PokeSprite : AnimatedSprite2D
 			}
 		}
 
-		// Walk animation row count compatibility
-		if(animationName == "Walk")
+		// Animation row count compatibility
+		if(animationName == "Walk" && rows == 8)
 		{
-			if(rows == 8)
-			{
 				SpriteFrames.RemoveAnimation("WalkS");
 				SpriteFrames.RemoveAnimation("WalkSE");
 				SpriteFrames.RemoveAnimation("WalkNE");
 				SpriteFrames.RemoveAnimation("WalkN");
 				SpriteFrames.RemoveAnimation("WalkNW");
 				SpriteFrames.RemoveAnimation("WalkSW");
-			}
-			else if(rows == 2)
-			{
-				SpriteFrames.RenameAnimation("WalkS", "WalkE");
-				SpriteFrames.RenameAnimation("WalkSE", "WalkW");
-			}
+		}
+		else if(rows == 2)
+		{
+			SpriteFrames.RenameAnimation(animationName + 'S', animationName + 'E');
+			SpriteFrames.RenameAnimation(animationName + "SE", animationName + 'W');
 		}
 	}
 }

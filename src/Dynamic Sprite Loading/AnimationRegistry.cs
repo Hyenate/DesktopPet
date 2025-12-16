@@ -41,42 +41,26 @@ public partial class AnimationRegistry : Node
 		{
 			 GD.PrintErr($"Unable to load animation data from {animDataPath}");
 		}
-		
-		// Populate the Registry
-		AddAnimation("Attack-Anim", "Attack", PullFrameSize("Attack"), PullFrameDurations("Attack"));
-		AddAnimation("Charge-Anim", "Charge", PullFrameSize("Charge"), PullFrameDurations("Charge"));
-		AddAnimation("Hop-Anim",    "Hop",    PullFrameSize("Hop"), PullFrameDurations("Hop"));
-		AddAnimation("Hurt-Anim",   "Hurt",   PullFrameSize("Hurt"), PullFrameDurations("Hurt"));
-		AddAnimation("Idle-Anim",   "Idle",   PullFrameSize("Idle"), PullFrameDurations("Idle"));
-		AddAnimation("Rotate-Anim", "Spin",   PullFrameSize("Rotate"), PullFrameDurations("Rotate"));
-		AddAnimation("Sleep-Anim",  "Sleep",  PullFrameSize("Sleep"), PullFrameDurations("Sleep"));
-		AddAnimation("Swing-Anim",  "Swing",  PullFrameSize("Swing"), PullFrameDurations("Swing"));
-		AddAnimation("Walk-Anim",   "Walk",   PullFrameSize("Walk"), PullFrameDurations("Walk"));
+
+		foreach(XElement anim in doc.Descendants("Anim"))
+		{	
+			// Drop redundant animations
+			if(anim.Element("CopyOf") == null)
+			{
+				string animName = (string)anim.Element("Name");
+				AddAnimation(animName + "-Anim", animName, PullFrameSize(anim), PullFrameDurations(anim));
+			}
+		}
 	}
 	
 	
-	public Vector2I PullFrameSize(string animName)
+	public Vector2I PullFrameSize(XElement animElem)
 	{
-		XElement animElem = doc.Descendants("Anim").FirstOrDefault(a => (string)a.Element("Name") == animName);
-		
-		if (animElem == null)
-		{
-			GD.PrintErr($"Animation '{animName}' not found in {animDataPath}");
-			return new Vector2I(0, 0);
-		}
 		return new Vector2I((int)animElem.Element("FrameWidth"), (int)animElem.Element("FrameHeight"));
 	}
 
-	public int[] PullFrameDurations(string animName)
+	public int[] PullFrameDurations(XElement animElem)
 	{
-		XElement animElem = doc.Descendants("Anim").FirstOrDefault(a => (string)a.Element("Name") == animName);
-		
-		if (animElem == null)
-		{
-			GD.PrintErr($"Animation '{animName}' not found in {animDataPath}");
-			return null;
-		}
-
 		return animElem.Descendants("Durations").Elements("Duration").Select(element => (int)element).ToArray();
 	}
 

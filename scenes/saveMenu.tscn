@@ -1,13 +1,14 @@
-[gd_scene load_steps=12 format=3 uid="uid://b7lo7xmarfae7"]
+[gd_scene load_steps=13 format=3 uid="uid://b7lo7xmarfae7"]
 
-[ext_resource type="Script" uid="uid://dbdgy664kwf6v" path="res://src/Menu.cs" id="1_yqeox"]
+[ext_resource type="Script" uid="uid://dbdgy664kwf6v" path="res://src/GUI/SaveMenu.cs" id="1_yqeox"]
 [ext_resource type="Theme" uid="uid://bwrg80lf02vk" path="res://assets/Themes/GUI_Theme.tres" id="2_vjb58"]
 [ext_resource type="FontFile" uid="uid://bf2nhmf7rgjeo" path="res://assets/JockeyOne-Regular.ttf" id="3_13sgg"]
 [ext_resource type="StyleBox" uid="uid://blcvtq4nr6fmg" path="res://assets/Themes/ButtonStyle_Pressed.tres" id="4_i6lef"]
 [ext_resource type="Texture2D" uid="uid://rv16o2372jex" path="res://assets/random.png" id="4_mhnvy"]
 [ext_resource type="StyleBox" uid="uid://fs4mycvepp6c" path="res://assets/Themes/ButtonStyle_Hover.tres" id="5_70i5f"]
-[ext_resource type="StyleBox" uid="uid://cxa7idpn52a1j" path="res://assets/Themes/ButtonStyle_Normal.tres" id="6_mj5lg"]
+[ext_resource type="StyleBox" uid="uid://ctqoaucjq7rde" path="res://assets/Themes/ButtonStyle_Normal.tres" id="6_13sgg"]
 [ext_resource type="StyleBox" uid="uid://d354wvfor01l0" path="res://assets/Themes/LineEditStyle_Normal.tres" id="7_ufwb2"]
+[ext_resource type="Theme" uid="uid://cdk7nf72el0bx" path="res://assets/Themes/ModifiedButton.tres" id="8_i6lef"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxicj"]
 content_margin_left = 4.0
@@ -38,7 +39,7 @@ Button/fonts/font = ExtResource("3_13sgg")
 Button/styles/disabled = ExtResource("4_i6lef")
 Button/styles/focus = ExtResource("5_70i5f")
 Button/styles/hover = ExtResource("5_70i5f")
-Button/styles/normal = ExtResource("6_mj5lg")
+Button/styles/normal = ExtResource("6_13sgg")
 Button/styles/pressed = ExtResource("4_i6lef")
 Label/colors/font_color = Color(1, 1, 1, 1)
 Label/colors/font_outline_color = Color(0, 0, 0, 1)
@@ -108,7 +109,7 @@ theme = SubResource("Theme_6cdou")
 [node name="Top Bar" type="ColorRect" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
-color = Color(0.36591518, 0.51579094, 0.41639453, 1)
+color = Color(0.2718756, 0.39386863, 9.62615e-08, 1)
 
 [node name="Windowed Mode" type="HBoxContainer" parent="VBoxContainer/Top Bar"]
 layout_mode = 1
@@ -124,11 +125,12 @@ alignment = 2
 
 [node name="Label" type="Label" parent="VBoxContainer/Top Bar/Windowed Mode"]
 layout_mode = 2
-text = "Windowed Mode"
+text = "Windowed Mode:  "
 
 [node name="CheckBox" type="CheckBox" parent="VBoxContainer/Top Bar/Windowed Mode"]
 layout_mode = 2
 tooltip_text = "Use a transparent window instead of the default \"Fullscreen\" mode."
+theme = ExtResource("8_i6lef")
 
 [node name="Spacer" type="Control" parent="VBoxContainer/Top Bar/Windowed Mode"]
 custom_minimum_size = Vector2(5, 0)
