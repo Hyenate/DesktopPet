@@ -5,6 +5,15 @@ using System.Linq;
 
 public partial class Pet : CharacterBody2D
 {
+	public class PetSettings
+	{
+		public float DragRadius { get; set; } = 80;
+		public float PhysicsRadius { get; set; } = 50;
+		public float WalkSpeed { get; set; } = 1;
+		public float MinRerollTime { get; set; } = 3;
+		public float MaxRerollTime { get; set; } = 10;
+	}
+	
 	public enum Direction
 	{
 		S,
@@ -19,26 +28,22 @@ public partial class Pet : CharacterBody2D
 
 	public bool UsingOverlay {get; set;}
 
-	private Dictionary<string, int> Weights;
+	private PetSettings petSettings;
+	private Dictionary<string, int> Weights = [];
 	private int weightTotal = 0;
 	private Direction dir = Direction.S;
-	private const float Speed = 300.0f;
 	private AnimatedSprite2D anims;
 	private Timer timer;
 	private Random rand;
-	private bool initialized;
 	private ThrowableBehavior throwableBehavior;
 
+	private bool initialized = false;
 	private const float Gravity = 980f;
 	private const float TerminalVelocity = 2000f;
 	private static readonly Vector2 InitialVelocity = new(0, -400);
+	private const float BaseSpeed = 3000.0f;
 
-	public override void _Ready()
-	{
-		initialized = false;
-	}
-
-	public void InitializePet(AnimatedSprite2D petSprites, float dragRadius, float physicsRadius, Dictionary<string, int> weights)
+	public void InitializePet(AnimatedSprite2D petSprites, PetSettings configSettings)
 	{
 		AddChild(petSprites);
 		anims = petSprites;
@@ -47,7 +52,9 @@ public partial class Pet : CharacterBody2D
 		timer = GetNode<Timer>("Timer");
 		timer.Start();
 
-		((CircleShape2D)GetNode<CollisionShape2D>("CollisionShape2D").Shape).Radius = physicsRadius;
+		petSettings = configSettings;
+
+		((CircleShape2D)GetNode<CollisionShape2D>("CollisionShape2D").Shape).Radius = petSettings.PhysicsRadius;
 		rand = new Random();
 		Position = GetViewportRect().Size / 2;
 		Velocity = InitialVelocity;
@@ -57,19 +64,16 @@ public partial class Pet : CharacterBody2D
 		throwableBehavior.OnDragStarted += OnDragStarted;
 		throwableBehavior.OnDragStopped += OnDragStopped;
 		throwableBehavior.OnThrown += OnThrown;
-		throwableBehavior.DragRadius = dragRadius;
+		throwableBehavior.DragRadius = petSettings.DragRadius;
 
-		Weights = weights;
-		foreach (var weight in Weights)
+		foreach (string baseAnimName in anims.GetMetaList())
 		{
-			if(weight.Value == 0 || GetDirectionCount(weight.Key) == -1)
+			int animWeight = (int)anims.GetMeta(baseAnimName);
+			if(animWeight != 0 && GetDirectionCount(baseAnimName) != -1)
 			{
-				// Remove unused/nonexistent weights for this pet
-				Weights.Remove(weight.Key);
-			}
-			else
-			{
-				weightTotal += weight.Value;
+				// Only add usable/existing weights
+				Weights.Add(baseAnimName, animWeight);
+				weightTotal += animWeight;
 			}
 		}
 
@@ -113,7 +117,7 @@ public partial class Pet : CharacterBody2D
 		// Only apply walking behavior if spawn finished and on floor
 		if (IsOnFloor())
 		{
-			ApplyWalkingBehavior(ref velocity);
+			ApplyWalkingBehavior(ref velocity, (float)delta);
 		}
 		else
 		{
@@ -137,26 +141,27 @@ public partial class Pet : CharacterBody2D
 		return offsetPolygon;
 	}
 
-	private void ApplyWalkingBehavior(ref Vector2 velocity)
+	private void ApplyWalkingBehavior(ref Vector2 velocity, float delta)
 	{
+		float speed = delta * BaseSpeed * petSettings.WalkSpeed;
 		if (anims.Animation == "WalkE")
 		{
-			velocity.X = Mathf.MoveToward(Velocity.X, 60, Speed);
+			velocity.X = speed;
 			if (IsOnWall())
 			{
 				dir = Direction.W;
 				anims.Animation = "WalkW";
-				velocity.X = Mathf.MoveToward(Velocity.X, -60, Speed);
+				velocity.X = -speed;
 			}
 		}
 		else if (anims.Animation == "WalkW")
 		{
-			velocity.X = Mathf.MoveToward(Velocity.X, -60, Speed);
+			velocity.X = -speed;
 			if (IsOnWall())
 			{
 				dir = Direction.E;
 				anims.Animation = "WalkE";
-				velocity.X = Mathf.MoveToward(Velocity.X, 60, Speed);
+				velocity.X = speed;
 			}
 		}
 		else
@@ -168,7 +173,7 @@ public partial class Pet : CharacterBody2D
 	public void RandomizeState()
 	{
 		string state = RollForRandomState();
-		timer.WaitTime = rand.Next(7) + 3;
+		timer.WaitTime = GetDoubleInRange(petSettings.MinRerollTime, petSettings.MaxRerollTime);
 		int dirCount = GetDirectionCount(state);
 
 		if(dirCount == 1)
@@ -203,6 +208,10 @@ public partial class Pet : CharacterBody2D
 			}
 			anims.Play(state + dir.ToString());
 		}
+	}
+
+	private double GetDoubleInRange(float min, float max) {
+		return rand.NextDouble() * (max - min) + min;
 	}
 
 	private int GetDirectionCount(string state)

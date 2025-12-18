@@ -1,9 +1,14 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class PetEditor : MarginContainer
 {
+	private SpinBox minTimeSetting;
+	private SpinBox maxTimeSetting;
+	private SpinBox walkSpeedSetting;
+
 	private Label nameTag;
 	private SubViewport mainAnimPreview;
 	private AnimatedSprite2D mainPetSprites;
@@ -28,14 +33,19 @@ public partial class PetEditor : MarginContainer
 
 	public override void _Ready()
 	{
-		Node petSettings = GetNode("ScrollContainer/VBoxContainer/PetSettings");
-		nameTag = petSettings.GetNode<Label>("Name");
-		mainAnimPreview = petSettings.GetNode<SubViewport>("Preview/PreviewMain/View/SubViewport");
-		mouseCollisionCircle = petSettings.GetNode<TextureRect>("Preview/PreviewMain/MouseHitbox");
-		physicsCollisionCircle = petSettings.GetNode<TextureRect>("Preview/PreviewMain/PhysicsHitbox");
-		mouseHitboxSetting = petSettings.GetNode<SpinBox>("MouseSettings/Input");
-		physicsHitboxSetting = petSettings.GetNode<SpinBox>("PhysicsSettings/Input");
-		scaleSetting = petSettings.GetNode<SpinBox>("OtherSettings/InputScale");
+		Node globalSettings = GetNode("ScrollContainer/VBoxContainer/GlobalSettings");
+		minTimeSetting = globalSettings.GetNode<SpinBox>("Timing/MinInput");
+		maxTimeSetting = globalSettings.GetNode<SpinBox>("Timing/MaxInput");
+		walkSpeedSetting = globalSettings.GetNode<SpinBox>("WalkSpeed/Input");
+
+		Node localSettings = GetNode("ScrollContainer/VBoxContainer/LocalSettings");
+		nameTag = localSettings.GetNode<Label>("Title/Name");
+		mainAnimPreview = localSettings.GetNode<SubViewport>("Preview/PreviewMain/View/SubViewport");
+		mouseCollisionCircle = localSettings.GetNode<TextureRect>("Preview/PreviewMain/MouseHitbox");
+		physicsCollisionCircle = localSettings.GetNode<TextureRect>("Preview/PreviewMain/PhysicsHitbox");
+		mouseHitboxSetting = localSettings.GetNode<SpinBox>("MouseSettings/Input");
+		physicsHitboxSetting = localSettings.GetNode<SpinBox>("PhysicsSettings/Input");
+		scaleSetting = localSettings.GetNode<SpinBox>("OtherSettings/InputScale");
 
 		Node animSettings = GetNode("ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit");
 		animEditorName = animSettings.GetNode<Label>("Title/Name");
@@ -46,19 +56,27 @@ public partial class PetEditor : MarginContainer
 		animLoop = animSettings.GetNode<CheckBox>("Editor/Settings/AnimLoop/Input");
 	}
 
-	public void InitializePetEditor(string petName, float mouseHitboxRadius, float physicsHitboxRadius, Dictionary<string, int> allWeights)
+	public void InitializePetEditor(string petName, Pet.PetSettings configSettings)
 	{
 		PackedScene petSprites_res = ResourceLoader.Load<PackedScene>("user://" + petName + ".res", "", ResourceLoader.CacheMode.Ignore);
 		petSprites_res.SetLocalToScene(false);
 
-		InitializePetSettings(petName, mouseHitboxRadius, physicsHitboxRadius, petSprites_res);
-		InitializeAnimSelection(petSprites_res, allWeights);
+		InitializeGlobalSettings(configSettings.MinRerollTime, configSettings.MaxRerollTime, configSettings.WalkSpeed);
+		InitializeLocalSettings(petName, configSettings.DragRadius, configSettings.PhysicsRadius, petSprites_res);
+		InitializeAnimSelection(petSprites_res);
 		InitilizeAnimEditor(petSprites_res);
 
 		Visible = true;
 	}
 
-	private void InitializePetSettings(string petName, float mouseHitboxRadius, float physicsHitboxRadius, PackedScene petSprites_res)
+	private void InitializeGlobalSettings(float minTime, float maxTime, float walkSpeed)
+	{
+		minTimeSetting.Value = minTime;
+		maxTimeSetting.Value = maxTime;
+		walkSpeedSetting.Value = walkSpeed;
+	}
+
+	private void InitializeLocalSettings(string petName, float mouseHitboxRadius, float physicsHitboxRadius, PackedScene petSprites_res)
 	{
 		nameTag.Text = petName;
 		mouseHitboxSetting.Value = mouseHitboxRadius;
@@ -77,7 +95,7 @@ public partial class PetEditor : MarginContainer
 		OnScaleChanged(mainPetSprites.Scale.X);
 	}
 
-	private void InitializeAnimSelection(PackedScene petSprites_res, Dictionary<string, int> allWeights)
+	private void InitializeAnimSelection(PackedScene petSprites_res)
 	{
 		Node animationSelection = GetNode("ScrollContainer/VBoxContainer/AnimationSelect/ScrollWindow/ScrollContainer/HBoxContainer");
 		PackedScene animCard_res = ResourceLoader.Load<PackedScene>("res://scenes/animCard.tscn");
@@ -112,8 +130,18 @@ public partial class PetEditor : MarginContainer
 				animBaseName = animNames[i];
 				animCard.SetAnimCard(animNames[i], petSprites_res, 1);
 			}
-			WeightsForPet.Add(animBaseName, allWeights[animBaseName]);
-			weightSum += allWeights[animBaseName];
+
+			// Check for stored animation weight
+			if(mainPetSprites.HasMeta(animBaseName))
+			{
+				WeightsForPet.Add(animBaseName, (int)mainPetSprites.GetMeta(animBaseName));
+			}
+			else
+			{
+				WeightsForPet.Add(animBaseName, 0);
+			}
+
+			weightSum += WeightsForPet[animBaseName];
 			animationSelection.AddChild(animCard);
 		}
 	}
@@ -183,6 +211,22 @@ public partial class PetEditor : MarginContainer
 		else if(editorDirectionCount == 1)
 		{
 			animEditorSprites.Play(animEditorName.Text);
+		}
+	}
+
+	private void OnMinTimeChanged(float newMinTime)
+	{
+		if(newMinTime > maxTimeSetting.Value)
+		{
+			maxTimeSetting.Value = newMinTime;
+		}
+	}
+
+	private void OnMaxTimeChanged(float newMaxTime)
+	{
+		if(newMaxTime < minTimeSetting.Value)
+		{
+			minTimeSetting.Value = newMaxTime;
 		}
 	}
 
@@ -267,8 +311,19 @@ public partial class PetEditor : MarginContainer
 	private void OnSavePressed()
 	{
 		mainPetSprites.Position = Vector2.Zero;
-		SaveMenu.CollisionRadii radii = new([(float)mouseHitboxSetting.Value, (float)physicsHitboxSetting.Value]);
-		GetParent<SaveMenu>().SavePetEdits(nameTag.Text, mainPetSprites, radii, WeightsForPet);
+		foreach(string animName in WeightsForPet.Keys)
+		{
+			mainPetSprites.SetMeta(animName, WeightsForPet[animName]);
+		}
+
+		Pet.PetSettings petSettings = new();
+		petSettings.DragRadius = (float)mouseHitboxSetting.Value;
+		petSettings.PhysicsRadius = (float)physicsHitboxSetting.Value;
+		petSettings.WalkSpeed = (float)walkSpeedSetting.Value;
+		petSettings.MinRerollTime = (float)minTimeSetting.Value;
+		petSettings.MaxRerollTime = (float)maxTimeSetting.Value;
+
+		GetParent<SaveMenu>().SavePetEdits(nameTag.Text, mainPetSprites, petSettings);
 		OnExitPressed();
 	}
 

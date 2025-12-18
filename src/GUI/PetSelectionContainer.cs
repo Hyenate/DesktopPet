@@ -83,7 +83,9 @@ public partial class PetSelectionContainer : HBoxContainer
 
 	private void OnDeletePressed()
 	{
-		GetNode<AcceptDialog>("Delete/AcceptDialog").Visible = true;
+		AcceptDialog dialog = GetNode<AcceptDialog>("Delete/AcceptDialog");
+		dialog.DialogText = "Delete \"" + Name + "\"?";
+		dialog.Visible = true;
 	}
 
 	private void OnDeleteConfirmed()

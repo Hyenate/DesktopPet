@@ -50,74 +50,159 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="PetSettings" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+[node name="GlobalSettings" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Name" type="Label" parent="ScrollContainer/VBoxContainer/PetSettings"]
+[node name="Title" type="Label" parent="ScrollContainer/VBoxContainer/GlobalSettings"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Settings for All Pets"
+horizontal_alignment = 1
+
+[node name="Spacer2" type="Control" parent="ScrollContainer/VBoxContainer/GlobalSettings"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Timing" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/GlobalSettings"]
+layout_mode = 2
+alignment = 1
+
+[node name="Prefix" type="Label" parent="ScrollContainer/VBoxContainer/GlobalSettings/Timing"]
+layout_mode = 2
+text = "Change animation every "
+
+[node name="MinInput" type="SpinBox" parent="ScrollContainer/VBoxContainer/GlobalSettings/Timing"]
+layout_mode = 2
+min_value = 0.1
+step = 0.1
+value = 3.0
+allow_greater = true
+alignment = 1
+custom_arrow_step = 0.1
+
+[node name="Mid" type="Label" parent="ScrollContainer/VBoxContainer/GlobalSettings/Timing"]
+layout_mode = 2
+text = "(min) to "
+
+[node name="MaxInput" type="SpinBox" parent="ScrollContainer/VBoxContainer/GlobalSettings/Timing"]
+layout_mode = 2
+min_value = 0.1
+step = 0.1
+value = 10.0
+allow_greater = true
+alignment = 1
+custom_arrow_step = 0.1
+
+[node name="Suffix" type="Label" parent="ScrollContainer/VBoxContainer/GlobalSettings/Timing"]
+layout_mode = 2
+text = "(max) seconds"
+
+[node name="Spacer3" type="Control" parent="ScrollContainer/VBoxContainer/GlobalSettings"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="WalkSpeed" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/GlobalSettings"]
+layout_mode = 2
+alignment = 1
+
+[node name="Prefix" type="Label" parent="ScrollContainer/VBoxContainer/GlobalSettings/WalkSpeed"]
+layout_mode = 2
+text = "Walk Speed Multiplier: "
+
+[node name="Input" type="SpinBox" parent="ScrollContainer/VBoxContainer/GlobalSettings/WalkSpeed"]
+layout_mode = 2
+step = 0.1
+value = 1.0
+alignment = 1
+custom_arrow_step = 0.1
+
+[node name="Spacer" type="MarginContainer" parent="ScrollContainer/VBoxContainer/GlobalSettings"]
+layout_mode = 2
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_bottom = 10
+
+[node name="SpacerBar" type="ColorRect" parent="ScrollContainer/VBoxContainer/GlobalSettings/Spacer"]
+custom_minimum_size = Vector2(0, 3)
+layout_mode = 2
+color = Color(0.8217887, 0.82178867, 0.82178867, 1)
+
+[node name="LocalSettings" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Title" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/LocalSettings"]
+layout_mode = 2
+alignment = 1
+
+[node name="Prefix" type="Label" parent="ScrollContainer/VBoxContainer/LocalSettings/Title"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Settings for"
+
+[node name="Name" type="Label" parent="ScrollContainer/VBoxContainer/LocalSettings/Title"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "Name"
 horizontal_alignment = 1
 
-[node name="Preview" type="AspectRatioContainer" parent="ScrollContainer/VBoxContainer/PetSettings"]
+[node name="Preview" type="AspectRatioContainer" parent="ScrollContainer/VBoxContainer/LocalSettings"]
 layout_mode = 2
 
-[node name="PreviewBG" type="ColorRect" parent="ScrollContainer/VBoxContainer/PetSettings/Preview"]
+[node name="PreviewBG" type="ColorRect" parent="ScrollContainer/VBoxContainer/LocalSettings/Preview"]
 layout_mode = 2
 color = Color(0.14065409, 0.16037622, 0.1072747, 1)
 
-[node name="PreviewMain" type="MarginContainer" parent="ScrollContainer/VBoxContainer/PetSettings/Preview"]
+[node name="PreviewMain" type="MarginContainer" parent="ScrollContainer/VBoxContainer/LocalSettings/Preview"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="View" type="SubViewportContainer" parent="ScrollContainer/VBoxContainer/PetSettings/Preview/PreviewMain"]
+[node name="View" type="SubViewportContainer" parent="ScrollContainer/VBoxContainer/LocalSettings/Preview/PreviewMain"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="SubViewport" type="SubViewport" parent="ScrollContainer/VBoxContainer/PetSettings/Preview/PreviewMain/View"]
+[node name="SubViewport" type="SubViewport" parent="ScrollContainer/VBoxContainer/LocalSettings/Preview/PreviewMain/View"]
 handle_input_locally = false
 size = Vector2i(180, 160)
 render_target_update_mode = 4
 
-[node name="MouseHitbox" type="TextureRect" parent="ScrollContainer/VBoxContainer/PetSettings/Preview/PreviewMain"]
+[node name="MouseHitbox" type="TextureRect" parent="ScrollContainer/VBoxContainer/LocalSettings/Preview/PreviewMain"]
 layout_mode = 2
 texture = SubResource("GradientTexture2D_djh8o")
 stretch_mode = 3
 
-[node name="PhysicsHitbox" type="TextureRect" parent="ScrollContainer/VBoxContainer/PetSettings/Preview/PreviewMain"]
+[node name="PhysicsHitbox" type="TextureRect" parent="ScrollContainer/VBoxContainer/LocalSettings/Preview/PreviewMain"]
 layout_mode = 2
 texture = SubResource("GradientTexture2D_7dxds")
 stretch_mode = 3
 
-[node name="MouseSettings" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/PetSettings"]
+[node name="MouseSettings" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/LocalSettings"]
 layout_mode = 2
 alignment = 1
 
-[node name="AspectRatioContainer" type="AspectRatioContainer" parent="ScrollContainer/VBoxContainer/PetSettings/MouseSettings"]
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings"]
 layout_mode = 2
 
-[node name="ColorRect" type="ColorRect" parent="ScrollContainer/VBoxContainer/PetSettings/MouseSettings/AspectRatioContainer"]
+[node name="ColorRect" type="ColorRect" parent="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings/AspectRatioContainer"]
 custom_minimum_size = Vector2(15, 15)
 layout_mode = 2
 color = Color(0.83805156, 0.035381492, 0.20329064, 1)
 
-[node name="View" type="Label" parent="ScrollContainer/VBoxContainer/PetSettings/MouseSettings"]
+[node name="View" type="Label" parent="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings"]
 layout_mode = 2
 text = " View Grabbable Hitbox:   "
 
-[node name="CheckButton" type="CheckButton" parent="ScrollContainer/VBoxContainer/PetSettings/MouseSettings"]
+[node name="CheckButton" type="CheckButton" parent="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings"]
 layout_mode = 2
 button_pressed = true
 
-[node name="Radius" type="Label" parent="ScrollContainer/VBoxContainer/PetSettings/MouseSettings"]
+[node name="Radius" type="Label" parent="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings"]
 layout_mode = 2
 text = "    Grabbable Hitbox Radius:   "
 
-[node name="Input" type="SpinBox" parent="ScrollContainer/VBoxContainer/PetSettings/MouseSettings"]
+[node name="Input" type="SpinBox" parent="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings"]
 layout_mode = 2
 min_value = 10.0
 max_value = 1000.0
@@ -128,31 +213,31 @@ update_on_text_changed = true
 custom_arrow_step = 10.0
 select_all_on_focus = true
 
-[node name="PhysicsSettings" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/PetSettings"]
+[node name="PhysicsSettings" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/LocalSettings"]
 layout_mode = 2
 alignment = 1
 
-[node name="AspectRatioContainer" type="AspectRatioContainer" parent="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings"]
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings"]
 layout_mode = 2
 
-[node name="ColorRect" type="ColorRect" parent="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings/AspectRatioContainer"]
+[node name="ColorRect" type="ColorRect" parent="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings/AspectRatioContainer"]
 custom_minimum_size = Vector2(15, 15)
 layout_mode = 2
 color = Color(0, 0.4874822, 0.8201891, 1)
 
-[node name="View" type="Label" parent="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings"]
+[node name="View" type="Label" parent="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings"]
 layout_mode = 2
 text = " View Physics Hitbox:   "
 
-[node name="CheckButton" type="CheckButton" parent="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings"]
+[node name="CheckButton" type="CheckButton" parent="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings"]
 layout_mode = 2
 button_pressed = true
 
-[node name="Radius" type="Label" parent="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings"]
+[node name="Radius" type="Label" parent="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings"]
 layout_mode = 2
 text = "    Physics Hitbox Radius:   "
 
-[node name="Input" type="SpinBox" parent="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings"]
+[node name="Input" type="SpinBox" parent="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings"]
 layout_mode = 2
 min_value = 10.0
 max_value = 1000.0
@@ -162,15 +247,15 @@ alignment = 1
 custom_arrow_step = 10.0
 select_all_on_focus = true
 
-[node name="OtherSettings" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/PetSettings"]
+[node name="OtherSettings" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/LocalSettings"]
 layout_mode = 2
 alignment = 1
 
-[node name="Scale" type="Label" parent="ScrollContainer/VBoxContainer/PetSettings/OtherSettings"]
+[node name="Scale" type="Label" parent="ScrollContainer/VBoxContainer/LocalSettings/OtherSettings"]
 layout_mode = 2
 text = "Scale: "
 
-[node name="InputScale" type="SpinBox" parent="ScrollContainer/VBoxContainer/PetSettings/OtherSettings"]
+[node name="InputScale" type="SpinBox" parent="ScrollContainer/VBoxContainer/LocalSettings/OtherSettings"]
 layout_mode = 2
 min_value = 0.1
 step = 0.1
@@ -260,6 +345,23 @@ size_flags_horizontal = 2
 theme_override_constants/separation = 10
 alignment = 1
 
+[node name="AnimWeight" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings"]
+layout_mode = 2
+
+[node name="Prefix" type="Label" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimWeight"]
+layout_mode = 2
+text = "Weight (Chance to Play): "
+
+[node name="Input" type="SpinBox" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimWeight"]
+layout_mode = 2
+max_value = 1000.0
+alignment = 1
+custom_arrow_step = 1.0
+
+[node name="Suffix" type="Label" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimWeight"]
+layout_mode = 2
+text = " / 0 (0%)"
+
 [node name="AnimSpeed" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings"]
 layout_mode = 2
 
@@ -279,23 +381,6 @@ custom_arrow_step = 1.0
 [node name="Suffix" type="Label" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimSpeed"]
 layout_mode = 2
 text = " FPS"
-
-[node name="AnimWeight" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings"]
-layout_mode = 2
-
-[node name="Prefix" type="Label" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimWeight"]
-layout_mode = 2
-text = "Weight (Chance to Play): "
-
-[node name="Input" type="SpinBox" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimWeight"]
-layout_mode = 2
-max_value = 1000.0
-alignment = 1
-custom_arrow_step = 1.0
-
-[node name="Suffix" type="Label" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimWeight"]
-layout_mode = 2
-text = " / 0 (0%)"
 
 [node name="AnimLoop" type="HBoxContainer" parent="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings"]
 layout_mode = 2
@@ -344,13 +429,15 @@ text = "Exit Without Saving"
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/PetSettings/MouseSettings/CheckButton" to="." method="OnMouseHitboxVisibilityToggled"]
-[connection signal="value_changed" from="ScrollContainer/VBoxContainer/PetSettings/MouseSettings/Input" to="." method="OnMouseHitboxRadiusChanged"]
-[connection signal="toggled" from="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings/CheckButton" to="." method="OnPhysicsHitboxVisibilityToggled"]
-[connection signal="value_changed" from="ScrollContainer/VBoxContainer/PetSettings/PhysicsSettings/Input" to="." method="OnPhysicsHitboxRadiusChanged"]
-[connection signal="value_changed" from="ScrollContainer/VBoxContainer/PetSettings/OtherSettings/InputScale" to="." method="OnScaleChanged"]
-[connection signal="value_changed" from="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimSpeed/Input" to="." method="OnAnimSpeedChanged"]
+[connection signal="value_changed" from="ScrollContainer/VBoxContainer/GlobalSettings/Timing/MinInput" to="." method="OnMinTimeChanged"]
+[connection signal="value_changed" from="ScrollContainer/VBoxContainer/GlobalSettings/Timing/MaxInput" to="." method="OnMaxTimeChanged"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings/CheckButton" to="." method="OnMouseHitboxVisibilityToggled"]
+[connection signal="value_changed" from="ScrollContainer/VBoxContainer/LocalSettings/MouseSettings/Input" to="." method="OnMouseHitboxRadiusChanged"]
+[connection signal="toggled" from="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings/CheckButton" to="." method="OnPhysicsHitboxVisibilityToggled"]
+[connection signal="value_changed" from="ScrollContainer/VBoxContainer/LocalSettings/PhysicsSettings/Input" to="." method="OnPhysicsHitboxRadiusChanged"]
+[connection signal="value_changed" from="ScrollContainer/VBoxContainer/LocalSettings/OtherSettings/InputScale" to="." method="OnScaleChanged"]
 [connection signal="value_changed" from="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimWeight/Input" to="." method="OnAnimWeightChanged"]
+[connection signal="value_changed" from="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimSpeed/Input" to="." method="OnAnimSpeedChanged"]
 [connection signal="toggled" from="ScrollContainer/VBoxContainer/AnimationEdit/AnimEdit/Editor/Settings/AnimLoop/Input" to="." method="OnAnimLoopToggled"]
 [connection signal="pressed" from="ScrollContainer/VBoxContainer/Finish/Save" to="." method="OnSavePressed"]
 [connection signal="pressed" from="ScrollContainer/VBoxContainer/Finish/Exit" to="." method="OnExitPressed"]

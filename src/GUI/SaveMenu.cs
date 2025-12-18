@@ -11,20 +11,7 @@ public partial class SaveMenu : Control
 	private static readonly float[] defaultCollisionRadii = [80.0f, 50.0f];
 	private const string configPath = "user://pets.cfg";
 	private const string configSection_Pet = "Pet Name";
-	private const string configSection_Anim = "Extra Animation Settings";
-
-	public class CollisionRadii(float[] radii)
-	{
-		public float Mouse { get; set; } = radii[0];
-		public float Physics { get; set; } = radii[1];
-	}
-
-	// UsageCount tracks how many pets use this animation for accurate deletion purposes (+1 for default animations)
-	public class AnimationSetting(int[] settings)
-	{
-		public int Weight { get; set; } = settings[0];
-		public int UsageCount { get; set; } = settings[1];
-	}
+	private const string configSection_Globals = "Global Settings";
 
 	public override void _Ready()
 	{
@@ -46,10 +33,15 @@ public partial class SaveMenu : Control
 			{
 				LoadPetCollection();
 			}
+
+			if(!config.HasSection(configSection_Globals))
+			{
+				SetDefaultGlobalSettings();
+			}
 		}
 		else
 		{
-			SetDefaultWeights();
+			SetDefaultGlobalSettings();
 		}
 	}
 
@@ -63,30 +55,30 @@ public partial class SaveMenu : Control
 		}
 	}
 
-	private void SetDefaultWeights()
+	private void SetDefaultGlobalSettings()
 	{
-		config.SetValue(configSection_Anim, "Idle", (int[])[20, 1]);
-		config.SetValue(configSection_Anim, "Walk", (int[])[40, 1]);
-		config.SetValue(configSection_Anim, "Sleep", (int[])[20, 1]);
-		config.SetValue(configSection_Anim, "Rotate", (int[])[5, 1]);
-		config.SetValue(configSection_Anim, "Hop", (int[])[15, 1]);
-	}
-
-	private Dictionary<string, int> GetWeights()
-	{
-		Dictionary<string, int> weights = [];
-		foreach(string animName in config.GetSectionKeys(configSection_Anim))
-		{
-			weights.Add(animName, new AnimationSetting((int[])config.GetValue(configSection_Anim, animName)).Weight);
-		}
-		return weights;
+		config.SetValue(configSection_Globals, "WalkSpeed", 1);
+		config.SetValue(configSection_Globals, "MinRerollTime", 3);
+		config.SetValue(configSection_Globals, "MaxRerollTime", 10);
 	}
 
 	public void LoadSelectedPet(string name)
 	{
 		bool useOverlay = menuContainer.GetNode<CheckBox>("Top Bar/Windowed Mode/CheckBox").ButtonPressed;
-		CollisionRadii radii = new((float[])config.GetValue(configSection_Pet, name, defaultCollisionRadii));
-		GetParent<SceneManager>().LoadPetScene(name, radii.Mouse, radii.Physics, GetWeights(), useOverlay);
+		GetParent<SceneManager>().LoadPetScene(name, GetPetSettings(name), useOverlay);
+	}
+
+	private Pet.PetSettings GetPetSettings(string petName)
+	{
+		Pet.PetSettings petSettings = new();
+		float[] radii = (float[])config.GetValue(configSection_Pet, petName, defaultCollisionRadii);
+		petSettings.DragRadius = radii[0];
+		petSettings.PhysicsRadius = radii[1];
+		petSettings.WalkSpeed = (float)config.GetValue(configSection_Globals, "WalkSpeed");
+		petSettings.MinRerollTime = (float)config.GetValue(configSection_Globals, "MinRerollTime");
+		petSettings.MaxRerollTime = (float)config.GetValue(configSection_Globals, "MaxRerollTime");
+
+		return petSettings;
 	}
 
 	private void OnLoadRandomPressed()
@@ -135,21 +127,6 @@ public partial class SaveMenu : Control
 				croppedPreview.SavePng("user://Pet" + newestIndex + "Icon.png");
 
 				config.SetValue(configSection_Pet, "Pet" + newestIndex, defaultCollisionRadii);
-				foreach(string animName in petSprites.registry.Animations.Keys)
-				{
-					AnimationSetting setting;
-					if(config.HasSectionKey(configSection_Anim, animName))
-					{
-						setting = new ((int[])config.GetValue(configSection_Anim, animName));
-						setting.UsageCount++;
-					}
-					else
-					{
-						// default (0 weight, 1 pet uses this animation) 
-						setting = new ((int[])[0, 1]);
-					}
-					config.SetValue(configSection_Anim, animName, (int[])[setting.Weight, setting.UsageCount]);
-				}
 
 				PetSelectionContainer petSelection = petSelection_res.Instantiate<PetSelectionContainer>();
 				petCollection.AddChild(petSelection);
@@ -166,27 +143,24 @@ public partial class SaveMenu : Control
 	public void LoadPetEditor(string petName)
 	{
 		menuContainer.Visible = false;
-		CollisionRadii radii = new ((float[])config.GetValue(configSection_Pet, petName, defaultCollisionRadii));
 		PackedScene petEditor_res = ResourceLoader.Load<PackedScene>("res://scenes/petEditor.tscn");
 		PetEditor petEditor = petEditor_res.Instantiate<PetEditor>();
 		AddChild(petEditor);
-		petEditor.InitializePetEditor(petName, radii.Mouse, radii.Physics, GetWeights());
+		petEditor.InitializePetEditor(petName, GetPetSettings(petName));
 	}
 
-	public void SavePetEdits(string petName, AnimatedSprite2D petSprites, CollisionRadii radii, Dictionary<string, int> newWeights)
+	public void SavePetEdits(string petName, AnimatedSprite2D petSprites, Pet.PetSettings petSettings)
 	{
 		PackedScene packedScene = new PackedScene();
 		packedScene.Pack(petSprites);
 		ResourceSaver.Save(packedScene, "user://" + petName + ".res", ResourceSaver.SaverFlags.Compress);
 
-		float[] hitboxRadii = [radii.Mouse, radii.Physics];
+		float[] hitboxRadii = [petSettings.DragRadius, petSettings.PhysicsRadius];
 		config.SetValue(configSection_Pet, petName, hitboxRadii);
 
-		foreach(string animName in newWeights.Keys)
-		{
-			int usageCount = ((int[])config.GetValue(configSection_Anim, animName))[1];
-			config.SetValue(configSection_Anim, animName, (int[])[newWeights[animName], usageCount]);
-		}
+		config.SetValue(configSection_Globals, "WalkSpeed", petSettings.WalkSpeed);
+		config.SetValue(configSection_Globals, "MinRerollTime", petSettings.MinRerollTime);
+		config.SetValue(configSection_Globals, "MaxRerollTime", petSettings.MaxRerollTime);
 
 		config.Save(configPath);
 	}
@@ -218,31 +192,11 @@ public partial class SaveMenu : Control
 	}
 
 	public void DeletePet(string petName)
-	{		
-		PackedScene resToDelete = ResourceLoader.Load<PackedScene>("user://" + petName + ".res", "" , ResourceLoader.CacheMode.Ignore);
-		AnimatedSprite2D petToDelete = resToDelete.Instantiate<AnimatedSprite2D>();
-
-		// Check for and delete settings for animations that are no longer used
-		foreach(string animName in GetBaseAnimationNames(petToDelete.SpriteFrames.GetAnimationNames()))
-		{
-			if(config.HasSectionKey(configSection_Anim, animName))
-			{
-				AnimationSetting setting = new ((int[])config.GetValue(configSection_Anim, animName));
-				setting.UsageCount--;
-				if(setting.UsageCount == 0)
-				{
-					config.EraseSectionKey(configSection_Anim, animName);
-				}
-				else
-				{
-					config.SetValue(configSection_Anim, animName, (int[])[setting.Weight, setting.UsageCount]);
-				}
-			}
-		}
-
-		config.Save(configPath);
+	{	
 		DirAccess.RemoveAbsolute("user://" + petName + ".res");
 		DirAccess.RemoveAbsolute("user://" + petName + "Icon.png");
+		config.EraseSectionKey(configSection_Pet, petName);
+		config.Save(configPath);
 	}
 
 	// Return array of animation names, dropping directional signatures
