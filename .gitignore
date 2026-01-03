@@ -6,3 +6,5 @@ export_presets.cfg
 
 # assets
 /sprite
+/ExamplePet/*.import
+/Preview/*.import
