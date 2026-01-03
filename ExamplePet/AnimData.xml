@@ -27,12 +27,6 @@
     <Durations>
       <Duration>7</Duration>
       <Duration>7</Duration>
-      <Duration>7</Duration>
-      <Duration>7</Duration>
-      <Duration>7</Duration>
-      <Duration>7</Duration>
-      <Duration>7</Duration>
-      <Duration>7</Duration>
     </Durations>
   </Anim>
   <Anim>
@@ -49,7 +43,6 @@
       <Duration>3</Duration>
       <Duration>2</Duration>
       <Duration>1</Duration>
-      <Duration>2</Duration>
     </Durations>
   </Anim>
   <Anim>
@@ -57,7 +50,6 @@
     <FrameWidth>32</FrameWidth>
     <FrameHeight>32</FrameHeight>
     <Durations>
-      <Duration>2</Duration>
       <Duration>2</Duration>
       <Duration>2</Duration>
       <Duration>2</Duration>
