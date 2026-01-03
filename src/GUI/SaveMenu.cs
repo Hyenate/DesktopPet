@@ -8,7 +8,7 @@ public partial class SaveMenu : Control
 	private VBoxContainer petCollection;
 	private PackedScene petSelection_res;
 	private ConfigFile config;
-	private static readonly float[] defaultCollisionRadii = [80.0f, 50.0f];
+	private static readonly float[] defaultCollisionRadii = [80.0f, 70.0f];
 	private const string configPath = "user://pets.cfg";
 	private const string configSection_Pet = "Pet Name";
 	private const string configSection_Globals = "Global Settings";
@@ -120,7 +120,7 @@ public partial class SaveMenu : Control
 				packedScene.Pack(petSprites);
 				ResourceSaver.Save(packedScene, "user://Pet" + newestIndex + ".res", ResourceSaver.SaverFlags.Compress);
 
-				Image preview = petSprites.SpriteFrames.GetFrameTexture("IdleSE", 0).GetImage();
+				Image preview = GetPreviewImage(petSprites.SpriteFrames);
 				Rect2I croppedRect = preview.GetUsedRect();
 				Image croppedPreview = Image.CreateEmpty(croppedRect.Size.X, croppedRect.Size.Y, false, preview.GetFormat());
 				croppedPreview.BlitRect(preview, croppedRect, new Vector2I(0, 0));
@@ -138,6 +138,27 @@ public partial class SaveMenu : Control
 			}
 		}
 		config.Save(configPath);
+	}
+
+	private static Image GetPreviewImage(SpriteFrames anims)
+	{
+		if(anims.HasAnimation("IdleSE"))
+		{
+			return anims.GetFrameTexture("IdleSE", 0).GetImage();
+		}
+		else if(anims.HasAnimation("IdleE"))
+		{
+			return anims.GetFrameTexture("IdleE", 0).GetImage();
+		}
+		else if(anims.HasAnimation("Idle"))
+		{
+			return anims.GetFrameTexture("Idle", 0).GetImage();
+		}
+		else
+		{
+			// Default image if Idle does not exist
+			return anims.GetFrameTexture(anims.GetAnimationNames()[0], 0).GetImage();
+		}
 	}
 
 	public void LoadPetEditor(string petName)

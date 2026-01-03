@@ -48,7 +48,7 @@ public partial class Pet : CharacterBody2D
 		AddChild(petSprites);
 		anims = petSprites;
 		anims.AnimationFinished += RandomizeState; 	// If animation doesn't loop, immediately reroll upon completion
-		anims.Play("HopS");
+		InitializeFirstAnimation();
 		timer = GetNode<Timer>("Timer");
 		timer.Start();
 
@@ -78,6 +78,29 @@ public partial class Pet : CharacterBody2D
 		}
 
 		initialized = true;
+	}
+
+	private void InitializeFirstAnimation()
+	{
+		int dirCount = GetDirectionCount("Hop");
+		if(dirCount == 1)
+		{
+			anims.Play("Hop");
+		}
+		else if(dirCount == 2)
+		{
+			anims.Play("HopE");
+			dir = Direction.E;
+		}
+		else if(dirCount == 8)
+		{
+			anims.Play("HopS");
+		}
+		else
+		{
+			// Random state if Hop doesn't exist
+			RandomizeState();
+		}
 	}
 
 	public override void _PhysicsProcess(double delta)

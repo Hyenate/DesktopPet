@@ -87,8 +87,22 @@ public partial class PetEditor : MarginContainer
 		OnPhysicsHitboxRadiusChanged((float)physicsHitboxSetting.Value);
 
 		mainPetSprites = petSprites_res.Instantiate<AnimatedSprite2D>();
-
-		mainPetSprites.Play("IdleSE");
+		if(mainPetSprites.SpriteFrames.HasAnimation("IdleSE"))
+		{
+			mainPetSprites.Play("IdleSE");
+		}
+		else if(mainPetSprites.SpriteFrames.HasAnimation("IdleE"))
+		{
+			mainPetSprites.Play("IdleE");
+		}
+		else if(mainPetSprites.SpriteFrames.HasAnimation("Idle"))
+		{
+			mainPetSprites.Play("Idle");
+		}
+		else
+		{
+			mainPetSprites.Play(mainPetSprites.SpriteFrames.GetAnimationNames()[0]);
+		}
 		mainAnimPreview.AddChild(mainPetSprites);
 
 		scaleSetting.Value = mainPetSprites.Scale.X;
