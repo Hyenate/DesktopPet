@@ -1,5 +1,5 @@
 # Desktop Pet (Godot)
-Godot implementation of a customizable Desktop Pet. Compatible with Windows, MacOS, and Linux (X11)
+Godot implementation of a customizable Desktop Pet. Compatible with Windows and Linux (X11)
 
 <img alt="Desktop Preview" src="Preview\DesktopPreview.png" />
 
