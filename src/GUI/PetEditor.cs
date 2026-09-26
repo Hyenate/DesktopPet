@@ -186,6 +186,7 @@ public partial class PetEditor : MarginContainer
 		else if(directionCount == 2)
 		{
 			previewDirection = "E";
+			currDirection = Pet.Direction.E;
 		}
 		else
 		{
@@ -220,7 +221,15 @@ public partial class PetEditor : MarginContainer
 		}
 		else if(editorDirectionCount == 2)
 		{
-			animEditorSprites.Play(animEditorName.Text + "E");
+			if(currDirection == Pet.Direction.E)
+			{
+				currDirection = Pet.Direction.W;
+			}
+			else
+			{
+				currDirection = Pet.Direction.E;
+			}
+			animEditorSprites.Play(animEditorName.Text + currDirection.ToString());
 		}
 		else if(editorDirectionCount == 1)
 		{

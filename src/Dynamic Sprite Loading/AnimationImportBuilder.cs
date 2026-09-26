@@ -1,16 +1,23 @@
 using Godot;
 using System;
 using Godot.Collections;
+using CSharpDictionary = System.Collections.Generic.Dictionary<string, DefaultAnimationsMetadata.AnimationMetadata>;
 
 /// Class which extends AnimatedSprite2D, which automatically loads from sprite sheet data and AnimData.xml
 public partial class AnimationImportBuilder : AnimatedSprite2D
 {
-	public static readonly Array<string> animationDirections = new Array<string> {"S","SE","E","NE","N","NW","W","SW"};   // 8 compass directions
-	public AnimationRegistry registry = new AnimationRegistry();
+	public static readonly Array<string> animationDirections = ["S","SE","E","NE","N","NW","W","SW"];   // 8 compass directions
+	public AnimationRegistry registry = new();
+	private CSharpDictionary defaultAnimsMetadata;
 	private const float AnimDefaultFPS = 30.0f;
 
-	public void LoadSpriteFiles(string spriteFolder)
+	public AnimationImportBuilder()
 	{
+		defaultAnimsMetadata = DefaultAnimationsMetadata.GetDefaultAnimationsMetadata();
+	}
+
+	public void LoadSpriteFiles(string spriteFolder)
+	{		
 		registry.Init(spriteFolder);
 		LoadAllAnimations(spriteFolder);
 	}
@@ -38,13 +45,6 @@ public partial class AnimationImportBuilder : AnimatedSprite2D
 	/// Loads a sprite sheet and slices it into animation frames.
 	private void BuildAnimationFromSpriteSheet(string animationName, string spriteSheetPath, Vector2I FrameSize, int[] FrameDurations)
 	{
-		// Blacklisted for PMD compatibility and unlikeliness to be used
-		if(animationName == "Head")
-		{
-			registry.Animations.Remove("Head");
-			return;
-		}
-
 		//GD.Print("Animation Name: " + animationName);
 		Image image = new Image();
 		image.Load(spriteSheetPath);
@@ -88,29 +88,21 @@ public partial class AnimationImportBuilder : AnimatedSprite2D
 			SpriteFrames.AddAnimation(finalAnimationName);
 
 			// Default settings on PMD anim import
-			if(animationName == "Hop" || animationName == "Attack")
+			// Imported PMD anims are natively 60 fps, but can be distracting outside of their intended gameplay
+			// Some timings have been adjusted to mitigate this issue
+			int finalFrameDelay = 0;
+			if(defaultAnimsMetadata.TryGetValue(animationName, out DefaultAnimationsMetadata.AnimationMetadata value))
 			{
-				SpriteFrames.SetAnimationLoop(finalAnimationName, false);
+				SpriteFrames.SetAnimationLoop(finalAnimationName, value.Looping);
+				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS * value.AnimSpeed);
+				finalFrameDelay = value.AnimEndDelay;
+				SetMeta(animationName, value.Weight);
 			}
 			else
 			{
 				SpriteFrames.SetAnimationLoop(finalAnimationName, true);
-			}
-
-			// Imported PMD anims are natively 60 fps, but can be distracting outside of their intended gameplay
-			// Some timings have been adjusted to mitigate this issue
-			SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS);
-			if (animationName == "Hop" || animationName == "Rotate")
-			{
-				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS * 0.75f);
-			}
-			else if(animationName == "Sleep")
-			{
-				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS * 2);
-			}
-			else
-			{
 				SpriteFrames.SetAnimationSpeed(finalAnimationName, AnimDefaultFPS);
+				SetMeta(animationName, 5);
 			}
 
 			for (int x = 0; x < columns; x++)
@@ -123,21 +115,19 @@ public partial class AnimationImportBuilder : AnimatedSprite2D
 					Region = region
 				};
 				
-				SpriteFrames.AddFrame(finalAnimationName, frameTexture, FrameDurations[x]);
+				if(x == columns - 1)
+				{
+					SpriteFrames.AddFrame(finalAnimationName, frameTexture, FrameDurations[x] + finalFrameDelay);
+				}
+				else
+				{
+					SpriteFrames.AddFrame(finalAnimationName, frameTexture, FrameDurations[x]);
+				}
 			}
 		}
 
 		// Animation row count compatibility
-		if(animationName == "Walk" && rows == 8)
-		{
-				SpriteFrames.RemoveAnimation("WalkS");
-				SpriteFrames.RemoveAnimation("WalkSE");
-				SpriteFrames.RemoveAnimation("WalkNE");
-				SpriteFrames.RemoveAnimation("WalkN");
-				SpriteFrames.RemoveAnimation("WalkNW");
-				SpriteFrames.RemoveAnimation("WalkSW");
-		}
-		else if(rows == 2)
+		if(rows == 2)
 		{
 			SpriteFrames.RenameAnimation(animationName + 'S', animationName + 'E');
 			SpriteFrames.RenameAnimation(animationName + "SE", animationName + 'W');

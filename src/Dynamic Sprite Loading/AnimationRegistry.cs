@@ -26,7 +26,7 @@ public partial class AnimationRegistry : Node
 	}
 
 	// Dictionary maps internal names to info
-	public CSharpDictionary Animations { get; private set; } = new();
+	public CSharpDictionary Animations { get; private set; } = [];
 	string animDataPath = "";
 	XDocument doc;
 

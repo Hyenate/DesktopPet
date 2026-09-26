@@ -195,6 +195,20 @@ public partial class Pet : CharacterBody2D
 	
 	public void RandomizeState()
 	{
+		if(anims.Animation == "Sleep")
+		{
+			if(anims.SpriteFrames.HasAnimation("Wake"))
+			{
+				anims.Play("Wake");
+				return;
+			}
+			else if(anims.SpriteFrames.HasAnimation("WakeW"))
+			{
+				anims.Play("WakeW");
+				return;
+			}
+		}
+		
 		string state = RollForRandomState();
 		timer.WaitTime = GetDoubleInRange(petSettings.MinRerollTime, petSettings.MaxRerollTime);
 		int dirCount = GetDirectionCount(state);
@@ -209,7 +223,7 @@ public partial class Pet : CharacterBody2D
 				anims.Frame = (int)dir;
 			}
 		}
-		else if(dirCount == 2)
+		else if(dirCount == 2 || state == "Walk")
 		{
 			if (rand.Next(2) == 0)
 			{

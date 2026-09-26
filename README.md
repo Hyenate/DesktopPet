@@ -67,6 +67,5 @@ This project was originally designed to be compatible with sprites from the [PMD
 Accomodations include:
 - Some animation speeds are automatically modified upon import. These can still be modified in the pet editor.
 - Some animations are set to not loop upon finishing. These can still be modified in the pet editor.
-- Animations named "Head" are blacklisted due to incompatibility with vertical sprite sheets and unlikelihood to be used.
 
 Additionally, for the best experience it is recommended to provide an "Idle" and "Hop" animation. The "Idle" animation is favored when generating pet previews, and the "Hop" animation is favored when a pet first spawns. 
