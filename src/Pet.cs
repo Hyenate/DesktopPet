@@ -50,7 +50,6 @@ public partial class Pet : CharacterBody2D
 		anims.AnimationFinished += RandomizeState; 	// If animation doesn't loop, immediately reroll upon completion
 		InitializeFirstAnimation();
 		timer = GetNode<Timer>("Timer");
-		timer.Start();
 
 		petSettings = configSettings;
 
@@ -305,7 +304,7 @@ public partial class Pet : CharacterBody2D
 	public void OnThrown(Vector2 throwForce)
 	{
 		// Handle throw behavior - you might want to play a special animation
-		string animationString = "Charge";
+		string animationString = "Pain";
 		if(Velocity.X > 0){
 			animationString += "W";
 		}

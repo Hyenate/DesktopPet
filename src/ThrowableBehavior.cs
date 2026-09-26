@@ -79,7 +79,7 @@ public partial class ThrowableBehavior : Node, IThrowable
 		return shouldParentHandlePhysics;
 	}
 
-	public bool IsMousePressed() {
+	public static bool IsMousePressed() {
 		return Input.IsActionPressed("lClick");
 	}
 

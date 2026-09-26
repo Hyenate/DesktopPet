@@ -5,6 +5,7 @@ public partial class PetSelectionContainer : HBoxContainer
 	private SaveMenu menuHandler;
 	private TextureRect icon;
 	private LineEdit nameEdit;
+	private Button toggleDefault;
 	private string newName;
 
 	public override void _Ready()
@@ -12,6 +13,7 @@ public partial class PetSelectionContainer : HBoxContainer
 		menuHandler = GetNode<SaveMenu>("../../../../../../../Menu");
 		icon = GetNode<TextureRect>("LoadPet/HBoxContainer/MarginContainer/Icon");
 		nameEdit = GetNode<LineEdit>("NameTag/Name");
+		toggleDefault = GetNode<Button>("SetDefault");
 		Name = "Pet";
 		newName = "";
 	}
@@ -33,6 +35,21 @@ public partial class PetSelectionContainer : HBoxContainer
 		menuHandler.LoadSelectedPet(Name);
 	}
 
+	public void OnSetDefaultToggled(bool pressedDown)
+	{
+		if(pressedDown)
+		{
+			toggleDefault.GetNode<TextureRect>("MarginContainer/Icon").Visible = true;
+			toggleDefault.GetNode<Label>("MarginContainer/Label").Visible = false;
+			menuHandler.SetDefaultPetToLoad(Name);
+		}
+		else
+		{
+			toggleDefault.GetNode<TextureRect>("MarginContainer/Icon").Visible = false;
+			toggleDefault.GetNode<Label>("MarginContainer/Label").Visible = true;
+		}
+	}
+
 	private void OnTextSubmitted(string submittedName)
 	{
 		string invalidChars = System.Text.RegularExpressions.Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()) + ".");
@@ -51,9 +68,7 @@ public partial class PetSelectionContainer : HBoxContainer
 			else
 			{
 				newName = sanitizedName;
-				AcceptDialog acceptDialog = GetNode<AcceptDialog>("NameTag/Name/AcceptDialog");
-				acceptDialog.Visible = true;
-				acceptDialog.DialogText = "Change \"" + Name + "\" to \"" + newName + "\"?";
+				OnTextConfirmed();
 			}
 		}   
 	}

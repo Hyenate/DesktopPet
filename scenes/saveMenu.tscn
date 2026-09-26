@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://b7lo7xmarfae7"]
+[gd_scene load_steps=17 format=3 uid="uid://b7lo7xmarfae7"]
 
 [ext_resource type="Script" uid="uid://dbdgy664kwf6v" path="res://src/GUI/SaveMenu.cs" id="1_yqeox"]
 [ext_resource type="Theme" uid="uid://bwrg80lf02vk" path="res://assets/Themes/GUI_Theme.tres" id="2_vjb58"]
@@ -9,6 +9,7 @@
 [ext_resource type="StyleBox" uid="uid://ctqoaucjq7rde" path="res://assets/Themes/ButtonStyle_Normal.tres" id="6_13sgg"]
 [ext_resource type="StyleBox" uid="uid://d354wvfor01l0" path="res://assets/Themes/LineEditStyle_Normal.tres" id="7_ufwb2"]
 [ext_resource type="Theme" uid="uid://cdk7nf72el0bx" path="res://assets/Themes/ModifiedButton.tres" id="8_i6lef"]
+[ext_resource type="Texture2D" uid="uid://cysj68wgl580" path="res://assets/pawPrint.png" id="10_ggw54"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lxicj"]
 content_margin_left = 4.0
@@ -61,6 +62,25 @@ MarginContainer/constants/margin_left = 10
 MarginContainer/constants/margin_right = 10
 MarginContainer/constants/margin_top = 5
 Tree/fonts/font = ExtResource("3_13sgg")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o2blw"]
+bg_color = Color(0.13285348, 0.22917357, 0.057271518, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.30015254, 0.4779054, 0.15535751, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_size = 3
+shadow_offset = Vector2(3, 3)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ggw54"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_ggw54"]
+allow_unpress = true
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -184,6 +204,36 @@ text = "LOAD
 RANDOM"
 icon = ExtResource("4_mhnvy")
 
+[node name="SetDefaultRandom" type="Button" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_styles/pressed = SubResource("StyleBoxFlat_o2blw")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_o2blw")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ggw54")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_ggw54")
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/SetDefaultRandom"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/SetDefaultRandom/MarginContainer"]
+visible = false
+layout_mode = 2
+texture = ExtResource("10_ggw54")
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/SetDefaultRandom/MarginContainer"]
+layout_mode = 2
+text = "Default
+to Random"
+horizontal_alignment = 1
+
 [node name="Add" type="Button" parent="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd"]
 texture_filter = 3
 layout_mode = 2
@@ -200,5 +250,6 @@ access = 2
 use_native_dialog = true
 
 [connection signal="pressed" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Random" to="." method="OnLoadRandomPressed"]
+[connection signal="toggled" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/SetDefaultRandom" to="." method="OnSetRandomToDefaultToggled"]
 [connection signal="pressed" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add" to="." method="OnAddPetPressed"]
 [connection signal="dir_selected" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add/FileDialog" to="." method="AddPets"]

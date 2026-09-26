@@ -8,13 +8,20 @@ public partial class SaveMenu : Control
 	private VBoxContainer petCollection;
 	private PackedScene petSelection_res;
 	private ConfigFile config;
+	private Button toggleDefault;
+	private ButtonGroup defaultGroup;
 	private static readonly float[] defaultCollisionRadii = [80.0f, 70.0f];
 	private const string configPath = "user://pets.cfg";
 	private const string configSection_Pet = "Pet Name";
 	private const string configSection_Globals = "Global Settings";
+	private const string defaultDisableValue = "_DEFAULT_DISABLED_";
+	private const string defaultRandomValue = "_RANDOM_";
+
+	public bool Reopened { get; set; } = false;
 
 	public override void _Ready()
 	{
+
 		// Hide incompatible modes
 		if(OS.GetName() != "Windows")
 		{
@@ -25,19 +32,67 @@ public partial class SaveMenu : Control
 		menuContainer = GetNode<VBoxContainer>("VBoxContainer");
 		petCollection = menuContainer.GetNode<VBoxContainer>("Selection/ScrollContainer/VBoxContainer/Collection");
 		petSelection_res = ResourceLoader.Load<PackedScene>("res://scenes/petSelectionContainer.tscn");
+		toggleDefault = GetNode<Button>("VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/SetDefaultRandom");
+		defaultGroup = toggleDefault.ButtonGroup;
+		defaultGroup.Pressed += CheckIfDefaultToggledOff;
 		config = new ConfigFile();
 		Error err = config.Load(configPath);
 		if (err == Error.Ok)
 		{
+			if(config.HasSectionKey(configSection_Globals, "DefaultPetToLoad") )
+			{
+				if(!Reopened) {
+					string defaultPet = (string)config.GetValue(configSection_Globals, "DefaultPetToLoad");
+					if (defaultPet == defaultRandomValue)
+					{
+						bool loadingRandom = OnLoadRandomPressed();
+						if(loadingRandom)
+						{
+							return;
+						}
+					}
+					else if(defaultPet != defaultDisableValue)
+					{
+						LoadSelectedPet(defaultPet);
+						return;
+					}
+				}
+			}
+
 			if(config.HasSection(configSection_Pet))
 			{
 				LoadPetCollection();
+				if(config.HasSectionKey(configSection_Globals, "DefaultPetToLoad") )
+				{
+					string defaultPet = (string)config.GetValue(configSection_Globals, "DefaultPetToLoad");
+					if(defaultPet != defaultDisableValue)
+					{
+						foreach(BaseButton button in defaultGroup.GetButtons())
+						{
+							if(button.Name == "SetDefaultRandom")
+							{
+								if(defaultPet == defaultRandomValue)
+								{
+									toggleDefault.ButtonPressed = true;
+									continue;
+								}
+							}
+							else if(button.GetNode<LineEdit>("../NameTag/Name").Text == defaultPet)
+							{
+								button.ButtonPressed = true;
+								continue;
+							}
+						}
+					}
+				}
 			}
 
 			if(!config.HasSection(configSection_Globals))
 			{
 				SetDefaultGlobalSettings();
 			}
+
+
 		}
 		else
 		{
@@ -50,6 +105,7 @@ public partial class SaveMenu : Control
 		foreach(string name in config.GetSectionKeys(configSection_Pet))
 		{
 			PetSelectionContainer petSelection = petSelection_res.Instantiate<PetSelectionContainer>();
+			petSelection.GetNode<Button>("SetDefault").ButtonGroup = defaultGroup;
 			petCollection.AddChild(petSelection);
 			petSelection.LoadPetDetails(name);
 		}
@@ -60,6 +116,7 @@ public partial class SaveMenu : Control
 		config.SetValue(configSection_Globals, "WalkSpeed", 1);
 		config.SetValue(configSection_Globals, "MinRerollTime", 3);
 		config.SetValue(configSection_Globals, "MaxRerollTime", 10);
+		config.SetValue(configSection_Globals, "DefaultPetToLoad", defaultDisableValue);
 	}
 
 	public void LoadSelectedPet(string name)
@@ -81,15 +138,42 @@ public partial class SaveMenu : Control
 		return petSettings;
 	}
 
-	private void OnLoadRandomPressed()
+	private bool OnLoadRandomPressed()
 	{
-		if(petCollection.GetChildCount() > 0)
+		if(config.HasSection(configSection_Pet) && config.GetSectionKeys(configSection_Pet).Length > 0)
 		{
 			Random rand = new();
-			int choice = rand.Next(petCollection.GetChildCount());
-			LoadSelectedPet(petCollection.GetChild(choice).Name);
+			int choice = rand.Next(config.GetSectionKeys(configSection_Pet).Length);
+			LoadSelectedPet(config.GetSectionKeys(configSection_Pet)[choice]);
+			return true;
 		}
+		else
+		{
+			return false;
+		}
+	}
 
+	private void OnSetRandomToDefaultToggled(bool pressedDown)
+	{
+		if(pressedDown)
+		{
+			toggleDefault.GetNode<TextureRect>("MarginContainer/Icon").Visible = true;
+			toggleDefault.GetNode<Label>("MarginContainer/Label").Visible = false;
+			SetDefaultPetToLoad(defaultRandomValue);
+		}
+		else
+		{
+			toggleDefault.GetNode<TextureRect>("MarginContainer/Icon").Visible = false;
+			toggleDefault.GetNode<Label>("MarginContainer/Label").Visible = true;
+		}
+	}
+
+	private void CheckIfDefaultToggledOff(BaseButton button)
+	{
+		if(defaultGroup.GetPressedButton() == null)
+		{
+			SetDefaultPetToLoad(defaultDisableValue);
+		}
 	}
 
 	private void OnAddPetPressed()
@@ -172,7 +256,7 @@ public partial class SaveMenu : Control
 
 	public void SavePetEdits(string petName, AnimatedSprite2D petSprites, Pet.PetSettings petSettings)
 	{
-		PackedScene packedScene = new PackedScene();
+		PackedScene packedScene = new();
 		packedScene.Pack(petSprites);
 		ResourceSaver.Save(packedScene, "user://" + petName + ".res", ResourceSaver.SaverFlags.Compress);
 
@@ -217,6 +301,12 @@ public partial class SaveMenu : Control
 		DirAccess.RemoveAbsolute("user://" + petName + ".res");
 		DirAccess.RemoveAbsolute("user://" + petName + "Icon.png");
 		config.EraseSectionKey(configSection_Pet, petName);
+		config.Save(configPath);
+	}
+
+	public void SetDefaultPetToLoad(string petName)
+	{
+		config.SetValue(configSection_Globals, "DefaultPetToLoad", petName);
 		config.Save(configPath);
 	}
 
