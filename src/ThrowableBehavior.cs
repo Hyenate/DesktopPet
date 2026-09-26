@@ -26,6 +26,8 @@ public partial class ThrowableBehavior : Node, IThrowable
 	public float MinThrowMovement { get; set; } = 10f;
 	
 	// References
+	private const int bufferedFrameCount = 5;
+	private Vector2[] throwVelocityBuffer = new Vector2[bufferedFrameCount];
 	private CharacterBody2D parentBody;
 	private int bounceCount = 0;
 	private bool shouldParentHandlePhysics = true;
@@ -37,6 +39,11 @@ public partial class ThrowableBehavior : Node, IThrowable
 		{
 			GD.PrintErr("ThrowableBehavior must be a child of a CharacterBody2D!");
 			return;
+		}
+
+		for(int i = 0; i < throwVelocityBuffer.Length; i++)
+		{
+			throwVelocityBuffer[i] = Vector2.Zero;
 		}
 		
 		ProcessMode = ProcessModeEnum.Always;
@@ -95,13 +102,10 @@ public partial class ThrowableBehavior : Node, IThrowable
 		else if (!mousePressed && wasMousePressed)
 		{
 			if (IsBeingDragged)
-			{
-				Vector2 currentMousePos = GetGlobalMousePosition();
-				Vector2 mouseMovement = currentMousePos - lastMousePosition;
-				
-				if (mouseMovement.Length() > MinThrowMovement)
+			{				
+				if (GetHighestBufferedThrowVelocity().Length() > MinThrowMovement)
 				{
-					Throw(mouseMovement * ThrowStrengthMultiplier);
+					Throw(GetHighestBufferedThrowVelocity() * ThrowStrengthMultiplier);
 				}
 				else
 				{
@@ -116,9 +120,7 @@ public partial class ThrowableBehavior : Node, IThrowable
 	{
 		Vector2 mousePos = GetGlobalMousePosition();
 		parentBody.GlobalPosition = mousePos - dragOffset;
-		parentBody.Velocity = Vector2.Zero;
-		throwVelocity = Vector2.Zero;
-		bounceCount = 0;
+		AddThrowVelocityToBuffer(mousePos - lastMousePosition);
 	}
 
 	private void HandleThrowing(double delta)
@@ -192,6 +194,28 @@ public partial class ThrowableBehavior : Node, IThrowable
 	{
 		var viewport = GetViewport();
 		return viewport?.GetMousePosition() ?? Vector2.Zero;
+	}
+
+	private void AddThrowVelocityToBuffer(Vector2 velocity)
+	{
+		Array.Copy(throwVelocityBuffer, 1, throwVelocityBuffer, 0, bufferedFrameCount - 1);
+		throwVelocityBuffer[bufferedFrameCount - 1] = velocity;
+	}
+
+	private Vector2 GetHighestBufferedThrowVelocity()
+	{
+		float maxVectorLength = throwVelocityBuffer[0].Length();
+		int maxIndex = 0;
+
+		for(int i = 1; i < bufferedFrameCount - 1; i++)
+		{
+			if(maxVectorLength < throwVelocityBuffer[i].Length())
+			{
+				maxVectorLength = throwVelocityBuffer[i].Length();
+				maxIndex = i;
+			}
+		}
+		return throwVelocityBuffer[maxIndex];
 	}
 
 	// Interface implementation
