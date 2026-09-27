@@ -134,9 +134,8 @@ public partial class SaveMenu : Control
 
 	public void LoadSelectedPet(string name)
 	{
-		bool useOverlay = windowsSettings.GetNode<CheckBox>("Windowed Mode/CheckBox").ButtonPressed;
-		GD.Print(useOverlay);
-		GetParent<SceneManager>().LoadPetScene(name, GetPetSettings(name), useOverlay);
+		GetParent<SceneManager>().LoadPetScene(name, GetPetSettings(name), 
+			windowsSettings.GetNode<CheckBox>("Windowed Mode/CheckBox").ButtonPressed);
 	}
 
 	private Pet.PetSettings GetPetSettings(string petName)
