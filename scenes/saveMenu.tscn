@@ -249,6 +249,7 @@ file_mode = 2
 access = 2
 use_native_dialog = true
 
+[connection signal="toggled" from="VBoxContainer/Top Bar/Windowed Mode/CheckBox" to="." method="OnUseOverlayToggled"]
 [connection signal="pressed" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Random" to="." method="OnLoadRandomPressed"]
 [connection signal="toggled" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/SetDefaultRandom" to="." method="OnSetRandomToDefaultToggled"]
 [connection signal="pressed" from="VBoxContainer/Bottom Bar/VBoxContainer/RandomOrAdd/Add" to="." method="OnAddPetPressed"]

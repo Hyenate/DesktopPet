@@ -38,6 +38,7 @@ public partial class Pet : CharacterBody2D
 	private ThrowableBehavior throwableBehavior;
 
 	private bool initialized = false;
+	private bool notificationFinished = false;
 	private const float Gravity = 980f;
 	private const float TerminalVelocity = 2000f;
 	private static readonly Vector2 InitialVelocity = new(0, -400);
@@ -151,16 +152,25 @@ public partial class Pet : CharacterBody2D
 
 	private Vector2[] GetOffsetPolygon()
 	{
-		Vector2 size = anims.SpriteFrames.GetFrameTexture(anims.Animation, anims.Frame).GetSize();
-		Vector2[] offsetPolygon =
-		[
-			(new Vector2(-size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
-			(new Vector2(size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
-			(new Vector2(size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
-			(new Vector2(-size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
-		];
-		
-		return offsetPolygon;
+		if(notificationFinished)
+		{
+			Vector2 size = anims.SpriteFrames.GetFrameTexture(anims.Animation, anims.Frame).GetSize();
+			Vector2[] offsetPolygon =
+			[
+				(new Vector2(-size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
+				(new Vector2(size.X / 2, size.Y /2) * anims.Scale) + GlobalPosition,
+				(new Vector2(size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
+				(new Vector2(-size.X / 2, -size.Y /2) * anims.Scale) + GlobalPosition,
+			];
+			
+			return offsetPolygon;
+		}
+		return [];
+	}
+
+	private void SetNotificationFinished()
+	{
+		notificationFinished = true;
 	}
 
 	private void ApplyWalkingBehavior(ref Vector2 velocity, float delta)

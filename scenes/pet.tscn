@@ -25,5 +25,9 @@ wait_time = 0.3
 one_shot = true
 script = ExtResource("3_qd1if")
 
+[node name="PassthroughDelay" type="Timer" parent="."]
+wait_time = 4.0
+
 [connection signal="timeout" from="Timer" to="." method="RandomizeState"]
 [connection signal="timeout" from="ReopenMenu" to="ReopenMenu" method="DoubleClickTimedOut"]
+[connection signal="timeout" from="PassthroughDelay" to="." method="SetNotificationFinished"]

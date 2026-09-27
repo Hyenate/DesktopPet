@@ -10,6 +10,8 @@ public partial class SaveMenu : Control
 	private ConfigFile config;
 	private Button toggleDefault;
 	private ButtonGroup defaultGroup;
+	private Control windowsSettings;
+	private bool isWindowsOS = false;
 	private static readonly float[] defaultCollisionRadii = [80.0f, 70.0f];
 	private const string configPath = "user://pets.cfg";
 	private const string configSection_Pet = "Pet Name";
@@ -21,11 +23,12 @@ public partial class SaveMenu : Control
 
 	public override void _Ready()
 	{
-
 		// Hide incompatible modes
-		if(OS.GetName() != "Windows")
+		windowsSettings = GetNode<Control>("VBoxContainer/Top Bar");
+		isWindowsOS = OS.GetName() == "Windows";
+		if(!isWindowsOS)
 		{
-			GetNode<ColorRect>("VBoxContainer/Top Bar").Visible = false;
+			windowsSettings.Visible = false;
 		}
 
 		GetWindow().FilesDropped += AddPets;
@@ -39,30 +42,36 @@ public partial class SaveMenu : Control
 		Error err = config.Load(configPath);
 		if (err == Error.Ok)
 		{
-			if(config.HasSectionKey(configSection_Globals, "DefaultPetToLoad") )
+			if(!Reopened && config.HasSectionKey(configSection_Globals, "DefaultPetToLoad") )
 			{
-				if(!Reopened) {
-					string defaultPet = (string)config.GetValue(configSection_Globals, "DefaultPetToLoad");
-					if (defaultPet == defaultRandomValue)
-					{
-						bool loadingRandom = OnLoadRandomPressed();
-						if(loadingRandom)
-						{
-							return;
-						}
-					}
-					else if(defaultPet != defaultDisableValue)
-					{
-						LoadSelectedPet(defaultPet);
+				SetUseOverlay();
+				string defaultPet = (string)config.GetValue(configSection_Globals, "DefaultPetToLoad");
+				if (defaultPet == defaultRandomValue)
+				{
+					bool loadingRandom = OnLoadRandomPressed();
+					if(loadingRandom)
 						return;
-					}
+				}
+				else if(defaultPet != defaultDisableValue)
+				{
+					LoadSelectedPet(defaultPet);
+					return;
 				}
 			}
 
 			if(config.HasSection(configSection_Pet))
 			{
 				LoadPetCollection();
-				if(config.HasSectionKey(configSection_Globals, "DefaultPetToLoad") )
+			}
+
+			if(!config.HasSection(configSection_Globals))
+			{
+				SetDefaultGlobalSettings();
+			}
+			else
+			{
+				SetUseOverlay();
+				if(config.HasSectionKey(configSection_Globals, "DefaultPetToLoad"))
 				{
 					string defaultPet = (string)config.GetValue(configSection_Globals, "DefaultPetToLoad");
 					if(defaultPet != defaultDisableValue)
@@ -86,13 +95,6 @@ public partial class SaveMenu : Control
 					}
 				}
 			}
-
-			if(!config.HasSection(configSection_Globals))
-			{
-				SetDefaultGlobalSettings();
-			}
-
-
 		}
 		else
 		{
@@ -117,11 +119,23 @@ public partial class SaveMenu : Control
 		config.SetValue(configSection_Globals, "MinRerollTime", 3);
 		config.SetValue(configSection_Globals, "MaxRerollTime", 10);
 		config.SetValue(configSection_Globals, "DefaultPetToLoad", defaultDisableValue);
+		if(isWindowsOS)
+			config.SetValue(configSection_Globals, "UseOverlay", false);
+	}
+
+	private void SetUseOverlay()
+	{
+		if(isWindowsOS && config.HasSectionKey(configSection_Globals, "UseOverlay"))
+		{
+			windowsSettings.GetNode<CheckBox>("Windowed Mode/CheckBox").ButtonPressed = 
+				(bool)config.GetValue(configSection_Globals, "UseOverlay");
+		}
 	}
 
 	public void LoadSelectedPet(string name)
 	{
-		bool useOverlay = menuContainer.GetNode<CheckBox>("Top Bar/Windowed Mode/CheckBox").ButtonPressed;
+		bool useOverlay = windowsSettings.GetNode<CheckBox>("Windowed Mode/CheckBox").ButtonPressed;
+		GD.Print(useOverlay);
 		GetParent<SceneManager>().LoadPetScene(name, GetPetSettings(name), useOverlay);
 	}
 
@@ -383,6 +397,12 @@ public partial class SaveMenu : Control
 		}
 
 		config = newConfigOrder;
+		config.Save(configPath);
+	}
+
+	private void OnUseOverlayToggled(bool pressed)
+	{
+		config.SetValue(configSection_Globals, "UseOverlay", pressed);
 		config.Save(configPath);
 	}
 }

@@ -7,7 +7,8 @@ public partial class SceneManager : Node
 
     public override void _Ready()
 	{
-		defaultWindowSize = GetWindow().Size;
+		defaultWindowSize = new Vector2I((int)ProjectSettings.GetSetting("display/window/size/viewport_width"), 
+			(int)ProjectSettings.GetSetting("display/window/size/viewport_height"));
 	}
 	
 	public void LoadPetScene(string petName, Pet.PetSettings petSettings, bool useOverlay)
@@ -16,6 +17,11 @@ public partial class SceneManager : Node
 		{
 			child.QueueFree();
 		}
+		PackedScene tip_res = ResourceLoader.Load<PackedScene>("res://scenes/tip.tscn");
+		AnimationPlayer tip = tip_res.Instantiate<AnimationPlayer>();
+		CallDeferred("add_child", tip);
+		tip.Play("TipFadeOut");
+
 		PackedScene pet_res = ResourceLoader.Load<PackedScene>("res://scenes/pet.tscn");
 		Pet pet = pet_res.Instantiate<Pet>();
 		pet.Name = "Pet";
@@ -42,7 +48,7 @@ public partial class SceneManager : Node
 		DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.AlwaysOnTop, false);
 		DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.Borderless, false);
 		DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
-		DisplayServer.WindowSetSize(defaultWindowSize);
+		GetWindow().Size = defaultWindowSize;
 
 		PackedScene saveMenu_res = ResourceLoader.Load<PackedScene>("res://scenes/saveMenu.tscn");
 		SaveMenu menu = saveMenu_res.Instantiate<SaveMenu>();
