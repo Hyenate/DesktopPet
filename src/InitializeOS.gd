@@ -11,5 +11,6 @@ func load_OS_settings(useOverlay, pet):
 		overlay.set_script(overlay_script)
 		pet.add_child(overlay)
 	else:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+		# DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+		DisplayServer.window_set_size(DisplayServer.screen_get_size())
 		DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
